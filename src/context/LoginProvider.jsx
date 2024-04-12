@@ -47,7 +47,6 @@ export function LoginProvider ( {children} ) {
         } catch (error) {
             console.log(`Code: ${error.code}, message: ${error.message}`);
         }
-        console.log('xyz',login.loginStatus);
     }
     const getOut = async() => {
         try {

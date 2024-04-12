@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { LoginProvider } from "../context/LoginProvider";
+import { LoginProvider } from "../../context/LoginProvider";
 
 export function GeneralLayout ( ) {
     return (
