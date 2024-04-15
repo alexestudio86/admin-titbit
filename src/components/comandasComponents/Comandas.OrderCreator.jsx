@@ -1,16 +1,20 @@
 import { useLoaderData } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 export function ComandasOrderCreator ( ) {
 
     const {platillos} = useLoaderData();
-    const [order, setOrder] = useState({
-        product:    '',
-        variant:    ''
-    });
-    const findIdx = (e) => {
-        console.log(e.target.value.title)
+    const [variants, setVariants] = useState();
+    const findProduct = (e) => {
+        const variantsAvailables = platillos[e.target.value];
+        variants.splice(0, variants.length);
+        if (variantsAvailables) {            
+            variants.push(
+                setVariants(platillos[e.target.value].variant)
+            )
+        };
+        console.log(platillos[e.target.value].variant)
     }
 
     return (
@@ -22,35 +26,36 @@ export function ComandasOrderCreator ( ) {
                         <span className="tooltiptext px-1" id='orderTooltip'>Elija una opción para continuar</span>
                     </div>
                     {/* NOMBRE */}
-                    <select className='w3-select' name='nameOrders' id="nameOrders" onChange={ e => {
-                                                                                                        setOrder({...order, product: e.target.value});
-                                                                                                        findIdx(e)
-                                                                                                    }
-                                                                                            } >
-                        <option defaultValue disabled>Elige una opcion</option>
+                    <select className='w3-select' name='nameOrders' id="nameOrders" onChange={ e => findProduct(e) } >
+                        <option value='' disabled>Elige una opcion</option>
                         { platillos.map( (platillo, index) => (
-                            <option value={[{title: platillo.title, variant: platillo.variant}]} key={index} >{platillo.title}</option>
+                            <option value={index} key={index}>{platillo.title}</option>
+                            //<option value={JSON.stringify(platillo)} key={index} >{platillo.title}</option>
                             )
                         )}
                     </select>
-                    <div className='my-3'>
-                        {/* VARIANTE */}
-                        <div className="w3-row">
-                            <div>
-                                <span>*Variante</span>
-                                <select className='w3-select' name="variantOrder" id="variantOrder" defaultValue='' >
-                                    <option value='' disabled >Elige una variante</option>
-                                    <option >value</option>
-                                </select>
-                            </div>
-                            <div className="w3-rest">
-                                <div className="w3-right-align">
-                                    <span>Precio</span>
+                    { variants.length > 0 && (
+                        <div className='my-3'>
+                            {/* VARIANTE */}
+                            <div className="w3-row">
+                                <div>
+                                    <span>*Variante</span>
+                                    <select className='w3-select' name="variantOrder" id="variantOrder" onChange={ e => console.log(e)} >
+                                        <option defaultValue disabled >Elige una variante</option>
+                                        { variants.map( (v, i) => (
+                                            <option value={v} key={i} >{v}</option>
+                                        ) )}
+                                    </select>
                                 </div>
-                                <div className="w3-input w3-right-align">item.orderPrice</div>
+                                <div className="w3-rest">
+                                    <div className="w3-right-align">
+                                        <span>Precio</span>
+                                    </div>
+                                    <div className="w3-input w3-right-align">item.orderPrice</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                     <div className='w3-row py-2'>
                         <div className="w3-col s8">
                             <div className="w3-row">
