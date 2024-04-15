@@ -1,13 +1,20 @@
-import { useLoaderData } from "react-router-dom"
+import { useLoaderData } from "react-router-dom";
+import { useState } from "react";
 
 
 export function ComandasOrderCreator ( ) {
 
-    const { response } = useLoaderData();
+    const {platillos} = useLoaderData();
+    const [order, setOrder] = useState({
+        product:    '',
+        variant:    ''
+    });
+    const findIdx = (e) => {
+        console.log(e.target.value.title)
+    }
 
     return (
         <div className='w3-white p-3'>
-            {console.log(response)}
             <form onSubmit={ e => e.preventDefault()}>
                 <div className='mb-3'>
                     <span>*Orden</span>
@@ -15,17 +22,24 @@ export function ComandasOrderCreator ( ) {
                         <span className="tooltiptext px-1" id='orderTooltip'>Elija una opción para continuar</span>
                     </div>
                     {/* NOMBRE */}
-                    <select className='w3-select' name='nameOrders' id="nameOrders" >
-                        <option value="" disabled selected>Elige una opcion</option>
-                        <option >value.title</option>
+                    <select className='w3-select' name='nameOrders' id="nameOrders" onChange={ e => {
+                                                                                                        setOrder({...order, product: e.target.value});
+                                                                                                        findIdx(e)
+                                                                                                    }
+                                                                                            } >
+                        <option defaultValue disabled>Elige una opcion</option>
+                        { platillos.map( (platillo, index) => (
+                            <option value={[{title: platillo.title, variant: platillo.variant}]} key={index} >{platillo.title}</option>
+                            )
+                        )}
                     </select>
                     <div className='my-3'>
                         {/* VARIANTE */}
                         <div className="w3-row">
                             <div>
                                 <span>*Variante</span>
-                                <select className='w3-select' name="variantOrder" id="variantOrder" >
-                                    <option value="" disabled  selected >Elige una variante</option>
+                                <select className='w3-select' name="variantOrder" id="variantOrder" defaultValue='' >
+                                    <option value='' disabled >Elige una variante</option>
                                     <option >value</option>
                                 </select>
                             </div>

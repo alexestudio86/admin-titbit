@@ -4,6 +4,7 @@ import { GeneralLayout } from "../layouts/generalLayouts/General.Layout";
   import './app.css'
   import { ViewHome } from "../views/View.Home";
   import { ViewComandas } from "../views/View.Comandas";
+  import { getPlatillosData } from "../context/jsonCalls";
   import { getComandasData } from "../context/jsonCalls";
   import { ViewPlatillos } from "../views/View.Platillos";
 
@@ -22,7 +23,7 @@ export const App = createBrowserRouter([
           },{
             path:     'comandas',
             element:  <ViewComandas />,
-            loader:   getComandasData
+            loader:   getPlatillosData
           },{
             path:     'platillos',
             element:  <ViewPlatillos />
