@@ -1,90 +1,215 @@
 import { useLoaderData } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import './comandasOrderCreator.css';
 
 
 export function ComandasOrderCreator ( ) {
 
+    const {platillos} = useLoaderData();
+    // Body of forms to make a order
     const [order, setOrder] = useState({
-        product:    '',
-        variant:    '',
+        product:    {
+            id:         '',
+            name:       '',
+            tooltip:   false
+        },
+        variant:    {
+            id:         '',
+            name:       '',
+            tooltip:   false
+        },
         quantity:   1
     });
-
-    const {platillos} = useLoaderData();
+    // Check if variants exist and add this to list
     const [variants, setVariants] = useState([]);
+    // With the product selected, get to variants
     const findProduct = (e) => {
-        setOrder({...order, product: platillos[e.target.value].title})
+        // Object spread for copy object in a object
+        setOrder({...order, product: {id: e.target.value, name: platillos[e.target.value].title, tooltip: false}})
         const variantsAvailables = platillos[e.target.value].variant;
-        // Remove items
+        // Clear product variants
         variants.length > 0 && variants.splice(0, variants.length);
         if (variantsAvailables.length > 0) {
             variantsAvailables.map ( v => variants.push(v) )
         };
-    }
-
+    };
+    const setVariant = (e) => {
+        //Set newVariant
+        setOrder({...order, variant: {id: e.target.value, name: variants[e.target.value], tooltip: false}})
+    };
+    //Identify the operation
     const [counter, setCounter] = useState({
-        status: 'stop'
-    })
-    const ref = useRef({
-        status: 'stop'
+        status: 'normal'
     });
+    const operation = useRef(null);
     const checkCounter = (instruction = {action: null}) => {
-        const ae86 = async () => {
-            await new Promise( res => {
-                setTimeout(() => {
-                    if (ref.current.status === 'normal') {
-                        ref.current.status = 'fast'
-                    }
-                }, 2000)
-            })
-        };
         switch (instruction.action) {
-            case 'clickHandle':
-                //setCounter({status: 'normal'});
-                ref.current.status = 'normal'
-                ae86();
+            case 'minusCounter':
+                setCounter({status: 'minus'});
+                operation.current = setTimeout( () => {
+                    setCounter({status: 'fastMinus'});
+                }, 2000);
                 break;
-            case 'leaveHandle':
-                //setCounter({status: 'stop'});
-                ref.current.status = 'stop'
+            case 'plusCounter':
+                setCounter({status: 'plus'});
+                operation.current = setTimeout( () => {
+                    setCounter({status: 'fastPlus'});
+                }, 2000);
+                break;
+            case 'stopCounter':
+                clearTimeout(operation.current);
+                setCounter({status: 'stop'});
                 break;
             default:
-                console.log('No Counter set');
+                console.log('No instrucction set');
         }
-    }
-
-    const interval = useRef(null);
-    useEffect ( () => {
-        console.log('la ref es: ', ref.current)
-        switch (ref.current.status) {
-            case 'normal':
-                setOrder({...order, quantity: order.quantity+1});
+    };
+    //Do operation
+    const doOperation = useRef(null);
+    useEffect( () => {
+        switch (counter.status) {
+            case 'minus':
+                setOrder( {...order, quantity: order.quantity-1});
                 break;
-            case 'fast':
-                interval.current = setInterval( () => {
-                    setOrder( order => ({order, quantity: order.quantity+1}) );
-                }, 50 );
+            case 'fastMinus':
+                doOperation.current = setInterval( () => {
+                    setOrder( (order) => (order = {...order, quantity: order.quantity-1}) );
+                    //setOrder( {...order, quantity: order.quantity+1} );
+                }, 100 );
+                break;
+            case 'plus':
+                setOrder( {...order, quantity: order.quantity+1});
+                break;
+            case 'fastPlus':
+                doOperation.current = setInterval( () => {
+                    setOrder( (order) => (order = {...order, quantity: order.quantity+1}) );
+                    //setOrder( {...order, quantity: order.quantity+1} );
+                }, 100 );
                 break;
             case 'stop':
-                clearInterval(interval.current);
-                break
+                clearInterval(doOperation.current);
+                break;
             default:
+                console.log('No ref2 set');
                 break;
         }
-    },[ref.current])
- 
+    }, [counter.status]);
+
+    useEffect( () => {
+        if (order.quantity < 1) {
+            setCounter({status: 'stop'});
+            //setOrder( {quantity: 1});
+        }
+        if (order.quantity > 49) {
+            setCounter({status: 'stop'});
+            //setOrder( {quantity: 50});
+        }
+    }, [order.quantity]);
+
+    const [orders, setOrders] = useState([]);
+    const addElement = () => {
+        //Search product
+        const resProduct = orders.findIndex( ord => ord.product === order.product.name);
+        console.log('orders:', orders);
+        //If the pruduct is found
+        if (resProduct >= 0) {
+            //Destructure variants
+            const {variants} = orders[resProduct];
+
+            //Search variant
+            const resVariant = variants.findIndex( v => v.name === order.variant.name);
+            //If product + variant was found
+            if (resVariant >= 0) {
+                const newOrder = orders.map( o => {
+                    if ( o.product === order.product.name ) {
+                        return {
+                            product:    order.product.name,
+                            variants:   o.variants.map( v => {
+                                if (v.name === order.variant.name) {
+                                    return {
+                                        name:       order.variant.name,
+                                        quantity:   order.quantity
+                                    }
+                                };
+                                return v;
+                            })
+                        }
+                    };
+                    return o;
+                });
+                //Variant was found
+                console.log('newOrder:', newOrder);                
+                setOrders(newOrder);
+            }else{
+                //If product was found but variant not
+                const newOrder = orders.map( o => {
+                    if ( o.product === order.name) {
+                        return {
+                            product: '',
+                            variants: [...o.variants, order.variant]
+                        }
+                    };
+                    return c
+                });
+                setOrders(newOrder);
+            };
+        }else{
+            //The product was not found and will be created
+            setOrders([...orders, {
+                    product:    order.product.name,
+                    variants: [{
+                        name:       order.variant.name,
+                        quantity:   order.quantity
+                    }]
+                }
+            ]);
+        };
+        //Clear order product and variant
+        setOrder({product: {id: '', name: '', tooltip: false}, variant: {id: '', name: '', tooltip: false}, quantity: 3});
+        setVariants([]);
+    };
+
+    const validateOrder = () => {
+        if (!order.product.name) {
+            setOrder({...order, product: {...order.product, tooltip: true}});
+        }else{
+            if (variants.length > 0) {
+                if (!order.variant.name) {
+                    setOrder({...order, variant: {...order.variant, tooltip: true}});
+                }else{
+                    addElement();
+                }
+            }else{
+                setOrders([...orders, {
+                    product:    order.product.name,
+                    variants:   [
+                        {
+                            name:       order.variant.name,
+                            quantity:   order.quantity
+                        }
+                    ]
+                }]);
+            };
+        };
+    };
+
 
     return (
         <div className='w3-white p-3'>
             <form onSubmit={ e => e.preventDefault()}>
                 <div className='mb-3'>
                     <span>*Orden</span>
-                    <div className="tooltip">
-                        <span className="tooltiptext px-1" id='orderTooltip'>Elija una opción para continuar</span>
-                    </div>
+                    {order.product.tooltip && (
+                        <div className="tooltip">
+                            <span className="tooltiptext px-1" id='orderTooltip'>Seleccione una</span>
+                        </div>
+                    )}
                     {/* NOMBRE */}
                     {/* Dont assign a dynamic value if you use another value in options */}
-                    <select defaultValue={''} className='w3-select' name='nameOrders' id="nameOrders" onChange={ e => findProduct(e) } >
+                    <select value={order.product.id} className='w3-select w3-white' name='nameOrders' id="nameOrders" onChange={ e => {
+                                                                                                                findProduct(e);
+                                                                                                            }}
+                    >
                         <option value='' disabled>Elige una opcion</option>
                         { platillos.map( (platillo, index) => (
                             <option value={index} key={index}>{platillo.title}</option>
@@ -94,13 +219,21 @@ export function ComandasOrderCreator ( ) {
                     </select>
                     { variants.length > 0 && (
                         <div className='my-3'>
+                            {order.variant.tooltip && (
+                                <div className="tooltip">
+                                    <span className="tooltiptext px-1" id='elementsTooltip'>Seleccione producto</span>
+                                </div>
+                            )}
                             {/* VARIANTE */}
                             <div className="w3-row">
                                 <span>*Variante</span>
-                                <select defaultValue={''} className='w3-select' name="variantOrder" id="variantOrder" onChange={ e => setOrder({...order, variant: e.target.value})} >
-                                    <option value='' disabled >Elige una variante</option>
+                                <select value={order.variant.id} className='w3-select w3-white' name="variantOrder" id="variantOrder" onChange={ e => {
+                                                                                                                                setVariant(e);
+                                                                                                                            }}
+                                >
+                                    <option value='' disabled >Seleccione variante</option>
                                     { variants.map( (v, i) => (
-                                        <option value={v} key={i} >{v}</option>
+                                        <option value={i} key={i} >{v}</option>
                                     ) ) }
                                 </select>
                             </div>
@@ -111,7 +244,12 @@ export function ComandasOrderCreator ( ) {
                             <div className="w3-row">
                                 <div className="w3-col s3">
                                     {/* Cantidad Menos */}
-                                    <button className='w3-button w3-border w3-pale-green w-100' >
+                                    <button className='w3-button w3-border w3-border-teal w3-text-teal w-100' onMouseDown={ () => order.quantity > 1 && checkCounter({action: 'minusCounter'}) }
+                                                                                                onTouchStart={ () => order.quantity > 1 && checkCounter({action: 'minusCounter'}) }
+                                                                                                onMouseUp={ () => checkCounter({action: 'stopCounter'}) }
+                                                                                                onTouchEnd={ () => checkCounter({action: 'stopCounter'}) }
+                                                                                                onMouseLeave={ () => checkCounter({action: 'stopCounter'})}
+                                    >
                                         <i className="fa-solid fa-angle-down"></i>
                                     </button>
                                 </div>
@@ -120,10 +258,11 @@ export function ComandasOrderCreator ( ) {
                                 </div>
                                 <div className="w3-col s3">
                                     {/* Cantidad mas */}
-                                    <button className='w3-button w3-border w3-pale-green w-100' onMouseDown={ () => checkCounter({action: 'clickHandle'}) }
-                                                                                                onMouseUp={ () => checkCounter({action: 'leaveHandle'}) }
-                                                                                                //onTouchStart={ () => checkCounter({action: 'clickHandle'}) }
-                                                                                                //onTouchEnd={ () => checkCounter({action: 'leaveHandle'}) }
+                                    <button className='w3-button w3-border w3-border-teal w3-text-teal w-100' onMouseDown={ () => order.quantity < 50 && checkCounter({action: 'plusCounter'}) }
+                                                                                                onTouchStart={ () => order.quantity < 50 && checkCounter({action: 'plusCounter'}) }
+                                                                                                onMouseUp={ () => checkCounter({action: 'stopCounter'}) }
+                                                                                                onTouchEnd={ () => checkCounter({action: 'stopCounter'}) }
+                                                                                                onMouseLeave={ () => checkCounter({action: 'stopCounter'}) }
                                     >
                                         <i className="fa-solid fa-angle-up"></i>
                                     </button>
@@ -134,7 +273,7 @@ export function ComandasOrderCreator ( ) {
                             <div className="w3-row">
                                 <div className="w3-col s10 w3-right">
                                     {/* Add Item */}
-                                    <button className='w3-button w3-border w3-teal w3-text-white w-100' >
+                                    <button type="submit" className='w3-button w3-border w3-teal w3-text-white w-100' onClick={ validateOrder } >
                                         <i className="fa-solid fa-plus"></i>
                                     </button>
                                 </div>
@@ -144,19 +283,22 @@ export function ComandasOrderCreator ( ) {
                 </div>
             </form>
             {/* ELEMENTOS */}
-            <div className="tooltip">
-                <span className="tooltiptext px-1" id='elementsTooltip'>Elija una variante para continuar</span>
-            </div>
             <div className="w3-border p-2 my-3 w3-light-gray">
                 <ul className="w3-ul p-0">
-                    <li className='w3-row m-1 p-0 w3-white w3-border'>
-                        <div className="w3-col s10 p-1" >
-                            e.title x e.quantity
-                        </div>
-                        <div className="w3-rest">
-                            <button className="w3-button w3-red w-100" style={{cursor: "pointer"}} >×</button>
-                        </div>
-                    </li>
+                    { orders.length > 0 && orders.map( (ord, idx) => (
+                        ord.variants.map( v => (
+                            <li key={idx} className='w3-row w3-white w3-border w3-padding-small'>
+                                <div className="w3-col s10 p-1" >
+                                    <span className="w3-small">{!v.name ? `${ord.product} x ${v.quantity}` : `${ord.product}, ${v.name} x ${v.quantity}`}</span>
+                                </div>
+                                <div className="w3-rest w3-right">
+                                    <button className="w3-button padding-4" >
+                                        <i className="w3-text-teal fa-xl fa-regular fa-circle-xmark"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        ) )
+                    ) ) }
                 </ul>
             </div>
             {/* COMENTARIOS Y FACTURA */}
@@ -207,7 +349,7 @@ export function ComandasOrderCreator ( ) {
                     </div>
                 </div>
             </div>
-            <button className='w3-button w3-blue w-100' type='submit' >Añadir</button>
+            <button className='w3-button w3-teal w-100' type='submit' >Añadir</button>
         </div>
     )
 }
