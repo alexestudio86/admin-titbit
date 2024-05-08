@@ -110,7 +110,7 @@ export function ComandasOrderCreator ( ) {
     const addElement = () => {
         //Search product
         const resProduct = orders.findIndex( ord => ord.product === order.product.name);
-        console.log('orders:', orders);
+        console.log('freak');
         //If the pruduct is found
         if (resProduct >= 0) {
             //Destructure variants
@@ -136,20 +136,18 @@ export function ComandasOrderCreator ( ) {
                         }
                     };
                     return o;
-                });
-                //Variant was found
-                console.log('newOrder:', newOrder);                
+                });          
                 setOrders(newOrder);
             }else{
                 //If product was found but variant not
                 const newOrder = orders.map( o => {
-                    if ( o.product === order.name) {
+                    if ( o.product === order.product.name) {
                         return {
-                            product: '',
-                            variants: [...o.variants, order.variant]
+                            product:    o.product,
+                            variants:   [...o.variants, {name: order.variant.name, quantity: order.quantity}]
                         }
                     };
-                    return c
+                    return o
                 });
                 setOrders(newOrder);
             };
@@ -165,14 +163,16 @@ export function ComandasOrderCreator ( ) {
             ]);
         };
         //Clear order product and variant
-        setOrder({product: {id: '', name: '', tooltip: false}, variant: {id: '', name: '', tooltip: false}, quantity: 3});
+        setOrder({product: {id: '', name: '', tooltip: false}, variant: {id: '', name: '', tooltip: false}, quantity: 1});
         setVariants([]);
     };
-
     const validateOrder = () => {
+        //If product name not exist
         if (!order.product.name) {
             setOrder({...order, product: {...order.product, tooltip: true}});
         }else{
+        //if product name exist
+            //If variants exist
             if (variants.length > 0) {
                 if (!order.variant.name) {
                     setOrder({...order, variant: {...order.variant, tooltip: true}});
@@ -180,19 +180,29 @@ export function ComandasOrderCreator ( ) {
                     addElement();
                 }
             }else{
-                setOrders([...orders, {
-                    product:    order.product.name,
-                    variants:   [
-                        {
-                            name:       order.variant.name,
-                            quantity:   order.quantity
-                        }
-                    ]
-                }]);
+            //If variants not exist
+                addElement();
             };
         };
     };
-
+    const deleteElement = (e) => {
+        //If many variants exist
+        if (orders[e.productIdx].variants.length > 1) {
+            const newOrder = orders.map( ord => {
+                if (ord.product === orders[e.productIdx].product) {
+                    return {
+                        ...ord,
+                        variants: ord.variants.filter( (v,i) => i !== e.variantIdx)
+                    }
+                };
+                return ord
+            });
+            setOrders(newOrder);
+        }else{
+        //If has only 1 variant
+            setOrders( orders.filter( o => o.product !== orders[e.productIdx].product ) );
+        }
+    };
 
     return (
         <div className='w3-white p-3'>
@@ -286,13 +296,15 @@ export function ComandasOrderCreator ( ) {
             <div className="w3-border p-2 my-3 w3-light-gray">
                 <ul className="w3-ul p-0">
                     { orders.length > 0 && orders.map( (ord, idx) => (
-                        ord.variants.map( v => (
-                            <li key={idx} className='w3-row w3-white w3-border w3-padding-small'>
+                        ord.variants.map( (v,i) => (
+                            <li key={i} className='w3-row w3-white w3-border w3-padding-small'>
                                 <div className="w3-col s10 p-1" >
                                     <span className="w3-small">{!v.name ? `${ord.product} x ${v.quantity}` : `${ord.product}, ${v.name} x ${v.quantity}`}</span>
                                 </div>
                                 <div className="w3-rest w3-right">
-                                    <button className="w3-button padding-4" >
+                                    <button className="w3-button padding-4" onClick={ () => {
+                                        deleteElement({productIdx: idx, variantIdx: i})
+                                    }} >
                                         <i className="w3-text-teal fa-xl fa-regular fa-circle-xmark"></i>
                                     </button>
                                 </div>
