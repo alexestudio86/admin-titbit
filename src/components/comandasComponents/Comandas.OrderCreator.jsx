@@ -6,8 +6,8 @@ import './comandasOrderCreator.css';
 export function ComandasOrderCreator ( ) {
 
     const {platillos} = useLoaderData();
-    // Body of forms to make a order
-    const [order, setOrder] = useState({
+    // Body of forms to make a Comanda
+    const [comanda, setComanda] = useState({
         product:    {
             id:         '',
             name:       '',
@@ -18,14 +18,16 @@ export function ComandasOrderCreator ( ) {
             name:       '',
             tooltip:   false
         },
-        quantity:   1
+        quantity:   1,
+        elementsTooltip:    false,
+        guestNameTooltip:   false
     });
     // Check if variants exist and add this to list
     const [variants, setVariants] = useState([]);
     // With the product selected, get to variants
     const findProduct = (e) => {
         // Object spread for copy object in a object
-        setOrder({...order, product: {id: e.target.value, name: platillos[e.target.value].title, tooltip: false}})
+        setComanda({...comanda, product: {id: e.target.value, name: platillos[e.target.value].title, tooltip: false}})
         const variantsAvailables = platillos[e.target.value].variant;
         // Clear product variants
         variants.length > 0 && variants.splice(0, variants.length);
@@ -35,7 +37,7 @@ export function ComandasOrderCreator ( ) {
     };
     const setVariant = (e) => {
         //Set newVariant
-        setOrder({...order, variant: {id: e.target.value, name: variants[e.target.value], tooltip: false}})
+        setComanda({...comanda, variant: {id: e.target.value, name: variants[e.target.value], tooltip: false}})
     };
     //Identify the operation
     const [counter, setCounter] = useState({
@@ -69,21 +71,21 @@ export function ComandasOrderCreator ( ) {
     useEffect( () => {
         switch (counter.status) {
             case 'minus':
-                setOrder( {...order, quantity: order.quantity-1});
+                setComanda( {...comanda, quantity: comanda.quantity-1});
                 break;
             case 'fastMinus':
                 doOperation.current = setInterval( () => {
-                    setOrder( (order) => (order = {...order, quantity: order.quantity-1}) );
-                    //setOrder( {...order, quantity: order.quantity+1} );
+                    setComanda( (comanda) => (comanda = {...comanda, quantity: comanda.quantity-1}) );
+                    //setComanda( {...comanda, quantity: comanda.quantity+1} );
                 }, 100 );
                 break;
             case 'plus':
-                setOrder( {...order, quantity: order.quantity+1});
+                setComanda( {...comanda, quantity: comanda.quantity+1});
                 break;
             case 'fastPlus':
                 doOperation.current = setInterval( () => {
-                    setOrder( (order) => (order = {...order, quantity: order.quantity+1}) );
-                    //setOrder( {...order, quantity: order.quantity+1} );
+                    setComanda( (comanda) => (comanda = {...comanda, quantity: comanda.quantity+1}) );
+                    //setComanda( {...comanda, quantity: comanda.quantity+1} );
                 }, 100 );
                 break;
             case 'stop':
@@ -94,41 +96,44 @@ export function ComandasOrderCreator ( ) {
                 break;
         }
     }, [counter.status]);
-
     useEffect( () => {
-        if (order.quantity < 1) {
+        if (comanda.quantity < 1) {
             setCounter({status: 'stop'});
-            //setOrder( {quantity: 1});
+            //setComanda( {quantity: 1});
         }
-        if (order.quantity > 49) {
+        if (comanda.quantity > 49) {
             setCounter({status: 'stop'});
-            //setOrder( {quantity: 50});
+            //setComanda( {quantity: 50});
         }
-    }, [order.quantity]);
-
-    const [orders, setOrders] = useState([]);
+    }, [comanda.quantity]);
+    const [comandas, setComandas] = useState({
+        elements:       [],
+        comment:        '',
+        invoice:        false,
+        schedule:       false,   
+        timeCollect:    new Date().toISOString().substring(0,10),
+        guest:          ''
+    });
     const addElement = () => {
-        //Search product
-        const resProduct = orders.findIndex( ord => ord.product === order.product.name);
-        console.log('freak');
+        //Search product in Comandas
+        const resProduct = comandas.elements.findIndex( ord => ord.product === comanda.product.name);
         //If the pruduct is found
         if (resProduct >= 0) {
             //Destructure variants
-            const {variants} = orders[resProduct];
-
+            const {variants} = comandas.elements[resProduct];
             //Search variant
-            const resVariant = variants.findIndex( v => v.name === order.variant.name);
-            //If product + variant was found
+            const resVariant = variants.findIndex( v => v.name === comanda.variant.name);
+            //Product found and variant found
             if (resVariant >= 0) {
-                const newOrder = orders.map( o => {
-                    if ( o.product === order.product.name ) {
+                const newComanda = comandas.elements.map( o => {
+                    if ( o.product === comanda.product.name ) {
                         return {
-                            product:    order.product.name,
+                            product:    comanda.product.name,
                             variants:   o.variants.map( v => {
-                                if (v.name === order.variant.name) {
+                                if (v.name === comanda.variant.name) {
                                     return {
-                                        name:       order.variant.name,
-                                        quantity:   order.quantity
+                                        name:       comanda.variant.name,
+                                        quantity:   comanda.quantity
                                     }
                                 };
                                 return v;
@@ -136,46 +141,47 @@ export function ComandasOrderCreator ( ) {
                         }
                     };
                     return o;
-                });          
-                setOrders(newOrder);
+                });
+                setComandas({...comandas, elements: newComanda});
             }else{
-                //If product was found but variant not
-                const newOrder = orders.map( o => {
-                    if ( o.product === order.product.name) {
+                //Product found but variant not found
+                const newComanda = comandas.elements.map( o => {
+                    if ( o.product === comanda.product.name) {
                         return {
                             product:    o.product,
-                            variants:   [...o.variants, {name: order.variant.name, quantity: order.quantity}]
+                            variants:   [...o.variants, {name: comanda.variant.name, quantity: comanda.quantity}]
                         }
                     };
                     return o
                 });
-                setOrders(newOrder);
+                setComandas({...comandas, elements: newComanda});
             };
         }else{
             //The product was not found and will be created
-            setOrders([...orders, {
-                    product:    order.product.name,
+            setComandas({...comandas, 
+                elements: [{...comandas.elements,
+                    product:    comanda.product.name,
                     variants: [{
-                        name:       order.variant.name,
-                        quantity:   order.quantity
+                        name:       comanda.variant.name,
+                        quantity:   comanda.quantity
                     }]
-                }
-            ]);
+            }]
+            });
         };
-        //Clear order product and variant
-        setOrder({product: {id: '', name: '', tooltip: false}, variant: {id: '', name: '', tooltip: false}, quantity: 1});
+        //Clear comanda product and variant
+        setComanda({product: {id: '', name: '', tooltip: false}, variant: {id: '', name: '', tooltip: false}, quantity: 1});
         setVariants([]);
     };
-    const validateOrder = () => {
+    const validateComanda = () => {
         //If product name not exist
-        if (!order.product.name) {
-            setOrder({...order, product: {...order.product, tooltip: true}});
+        if (!comanda.product.name) {
+            setComanda({...comanda, product: {...comanda.product, tooltip: true}});
         }else{
         //if product name exist
             //If variants exist
             if (variants.length > 0) {
-                if (!order.variant.name) {
-                    setOrder({...order, variant: {...order.variant, tooltip: true}});
+                if (!comanda.variant.name) {
+                    setComanda({...comanda, variant: {...comanda.variant, tooltip: true}});
                 }else{
                     addElement();
                 }
@@ -185,11 +191,11 @@ export function ComandasOrderCreator ( ) {
             };
         };
     };
-    const deleteElement = (e) => {
+    const deleteItem = (e) => {
         //If many variants exist
-        if (orders[e.productIdx].variants.length > 1) {
-            const newOrder = orders.map( ord => {
-                if (ord.product === orders[e.productIdx].product) {
+        if (comandas.elements[e.productIdx].variants.length > 1) {
+            const newComanda = comandas.elements.map( ord => {
+                if (ord.product === comandas.elements[e.productIdx].product) {
                     return {
                         ...ord,
                         variants: ord.variants.filter( (v,i) => i !== e.variantIdx)
@@ -197,26 +203,42 @@ export function ComandasOrderCreator ( ) {
                 };
                 return ord
             });
-            setOrders(newOrder);
+            setComandas({...comandas, elements: newComanda});
         }else{
         //If has only 1 variant
-            setOrders( orders.filter( o => o.product !== orders[e.productIdx].product ) );
+            const newComanda = comandas.elements.filter( o => o.product !== comandas.elements[e.productIdx].product )
+            setComandas({...comandas, elements: newComanda});
         }
     };
+    const validateOrder = () => {
+        if (comandas.elements.length < 1) {
+            setComanda({...comanda, elementsTooltip: true});
+        }else{
+        //if product name exist
+            //If variants exist
+            if (comandas.guest.length < 3) {
+                setComanda({...comanda, guestNameTooltip: true});
+                console.log('a');
+            }else{
+            //If variants not exist
+                console.log('b');
+            };
+        };
+    }
 
     return (
         <div className='w3-white p-3'>
             <form onSubmit={ e => e.preventDefault()}>
                 <div className='mb-3'>
-                    <span>*Orden</span>
-                    {order.product.tooltip && (
+                    <span>*Comanda</span>
+                    {comanda.product.tooltip && (
                         <div className="tooltip">
-                            <span className="tooltiptext px-1" id='orderTooltip'>Seleccione una</span>
+                            <span className="tooltiptext px-1" id='comandaTooltip'>Seleccione una</span>
                         </div>
                     )}
                     {/* NOMBRE */}
                     {/* Dont assign a dynamic value if you use another value in options */}
-                    <select value={order.product.id} className='w3-select w3-white' name='nameOrders' id="nameOrders" onChange={ e => {
+                    <select value={comanda.product.id} className='w3-select w3-white' name='nameComandas' id="nameComandas" onChange={ e => {
                                                                                                                 findProduct(e);
                                                                                                             }}
                     >
@@ -229,7 +251,7 @@ export function ComandasOrderCreator ( ) {
                     </select>
                     { variants.length > 0 && (
                         <div className='my-3'>
-                            {order.variant.tooltip && (
+                            {comanda.variant.tooltip && (
                                 <div className="tooltip">
                                     <span className="tooltiptext px-1" id='elementsTooltip'>Seleccione producto</span>
                                 </div>
@@ -237,7 +259,7 @@ export function ComandasOrderCreator ( ) {
                             {/* VARIANTE */}
                             <div className="w3-row">
                                 <span>*Variante</span>
-                                <select value={order.variant.id} className='w3-select w3-white' name="variantOrder" id="variantOrder" onChange={ e => {
+                                <select value={comanda.variant.id} className='w3-select w3-white' name="variantComanda" id="variantComanda" onChange={ e => {
                                                                                                                                 setVariant(e);
                                                                                                                             }}
                                 >
@@ -254,8 +276,8 @@ export function ComandasOrderCreator ( ) {
                             <div className="w3-row">
                                 <div className="w3-col s3">
                                     {/* Cantidad Menos */}
-                                    <button className='w3-button w3-border w3-border-teal w3-text-teal w-100' onMouseDown={ () => order.quantity > 1 && checkCounter({action: 'minusCounter'}) }
-                                                                                                onTouchStart={ () => order.quantity > 1 && checkCounter({action: 'minusCounter'}) }
+                                    <button className='w3-button w3-border w3-border-teal w3-text-teal w-100' onMouseDown={ () => comanda.quantity > 1 && checkCounter({action: 'minusCounter'}) }
+                                                                                                onTouchStart={ () => comanda.quantity > 1 && checkCounter({action: 'minusCounter'}) }
                                                                                                 onMouseUp={ () => checkCounter({action: 'stopCounter'}) }
                                                                                                 onTouchEnd={ () => checkCounter({action: 'stopCounter'}) }
                                                                                                 onMouseLeave={ () => checkCounter({action: 'stopCounter'})}
@@ -264,12 +286,12 @@ export function ComandasOrderCreator ( ) {
                                     </button>
                                 </div>
                                 <div className="w3-col s6 w3-padding w3-border w3-center">
-                                    <span>{order.quantity}</span>
+                                    <span>{comanda.quantity}</span>
                                 </div>
                                 <div className="w3-col s3">
                                     {/* Cantidad mas */}
-                                    <button className='w3-button w3-border w3-border-teal w3-text-teal w-100' onMouseDown={ () => order.quantity < 50 && checkCounter({action: 'plusCounter'}) }
-                                                                                                onTouchStart={ () => order.quantity < 50 && checkCounter({action: 'plusCounter'}) }
+                                    <button className='w3-button w3-border w3-border-teal w3-text-teal w-100' onMouseDown={ () => comanda.quantity < 50 && checkCounter({action: 'plusCounter'}) }
+                                                                                                onTouchStart={ () => comanda.quantity < 50 && checkCounter({action: 'plusCounter'}) }
                                                                                                 onMouseUp={ () => checkCounter({action: 'stopCounter'}) }
                                                                                                 onTouchEnd={ () => checkCounter({action: 'stopCounter'}) }
                                                                                                 onMouseLeave={ () => checkCounter({action: 'stopCounter'}) }
@@ -283,7 +305,7 @@ export function ComandasOrderCreator ( ) {
                             <div className="w3-row">
                                 <div className="w3-col s10 w3-right">
                                     {/* Add Item */}
-                                    <button type="submit" className='w3-button w3-border w3-teal w3-text-white w-100' onClick={ validateOrder } >
+                                    <button type="submit" className='w3-button w3-border w3-teal w3-text-white w-100' onClick={ validateComanda } >
                                         <i className="fa-solid fa-plus"></i>
                                     </button>
                                 </div>
@@ -293,9 +315,14 @@ export function ComandasOrderCreator ( ) {
                 </div>
             </form>
             {/* ELEMENTOS */}
+            {comanda.elementsTooltip && (
+                <div className="tooltip">
+                    <span className="tooltiptext px-1" id='allProducts'>Añada un producto</span>
+                </div>
+            )}
             <div className="w3-border p-2 my-3 w3-light-gray">
                 <ul className="w3-ul p-0">
-                    { orders.length > 0 && orders.map( (ord, idx) => (
+                    { comandas.elements.length > 0 && comandas.elements.map( (ord, idx) => (
                         ord.variants.map( (v,i) => (
                             <li key={i} className='w3-row w3-white w3-border w3-padding-small'>
                                 <div className="w3-col s10 p-1" >
@@ -303,7 +330,7 @@ export function ComandasOrderCreator ( ) {
                                 </div>
                                 <div className="w3-rest w3-right">
                                     <button className="w3-button padding-4" onClick={ () => {
-                                        deleteElement({productIdx: idx, variantIdx: i})
+                                        deleteItem({productIdx: idx, variantIdx: i})
                                     }} >
                                         <i className="w3-text-teal fa-xl fa-regular fa-circle-xmark"></i>
                                     </button>
@@ -313,38 +340,39 @@ export function ComandasOrderCreator ( ) {
                     ) ) }
                 </ul>
             </div>
-            {/* COMENTARIOS Y FACTURA */}
             <div className="w3-row mb-3">
+                {/* COMENTARIOS */}
                 <div className="w3-threequarter">
                     <span>Comentarios</span>
-                    <textarea className="w3-input w3-border" ></textarea>
+                    <textarea className="w3-input w3-border" value={comandas.comment} onChange={e => setComandas({...comandas, comment: e.target.value})} ></textarea>
                 </div>
+                {/* FACTURA */}
                 <div className="w3-rest w3-right">
                     <div>
-                        <span>Factura</span>
+                        <label htmlFor='invoice'>Factura</label>
                     </div>
-                    <div className="w3-right">
-                        <input className='w3-check' type='checkbox' />
+                    <div className="w3-padding">
+                        <input className='w3-check' type='checkbox' id="invoice" value={comandas.checked} onChange={ e => setComandas({...comandas, invoice: !comandas.invoice}) } />
                     </div>
                 </div>
             </div>
-            {/* PROGRAMADO */}
             <hr />
             <div className="w3-row">
                 <div className="w3-third">
                     <div>
-                        <span>Programado</span>
+                        {/* PROGRAMADO */}
+                        <label htmlFor='schedule'>Programado</label>
                     </div>
                     <div>
-                        <input className="w3-check" type="checkbox" />
+                        <input className="w3-check" type="checkbox" id="schedule" value={comandas.schedule} onChange={ e => setComandas({...comandas, schedule: !comandas.schedule}) } />
                     </div>
                 </div>
-                <div className="w3-rest">
+                <div className={`w3-rest ${!comandas.schedule && 'w3-disabled'}`}>
                     <div>
-                        <span>Horario</span>
+                        <span>*Horario</span>
                     </div>
                     <div>
-                        <input className="w3-input w3-border" type="date" />
+                        <input className="w3-input w3-border" type="date" value={comandas.timeCollect} onChange={ e => setComandas({...comandas, timeCollect: e.target.value}) } />
                     </div>
                 </div>
             </div>
@@ -353,15 +381,17 @@ export function ComandasOrderCreator ( ) {
             <div className="w3-row">
                 <div className="w3-rest m10">
                     <div className='mb-3'>
-                        <div className="tooltip">
-                            <span className="tooltiptext px-1" id='guestTooltip'>Escriba un nombre</span>
-                        </div>
+                        {comanda.elementsTooltip && (
+                            <div className="tooltip">
+                                <span className="tooltiptext px-1" id='guestTooltip'>Escriba un nombre</span>
+                            </div>
+                        )}
                         <span>*Cliente</span>
                         <input className='w3-input w3-border' type='text' id='exampleInputEmail1' aria-describedby='emailHelp' />
                     </div>
                 </div>
             </div>
-            <button className='w3-button w3-teal w-100' type='submit' >Añadir</button>
+            <button className='w3-button w3-teal w-100' type='button' onClick={validateOrder} >Añadir</button>
         </div>
     )
 }
