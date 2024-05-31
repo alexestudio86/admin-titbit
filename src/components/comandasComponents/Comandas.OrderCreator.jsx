@@ -5,7 +5,7 @@ import './comandasOrderCreator.css';
 
 export function ComandasOrderCreator ( ) {
 
-    const {platillos} = useLoaderData();
+    const {dishes} = useLoaderData();
     // Body of forms to make a Comanda
     const [comanda, setComanda] = useState({
         product:    {
@@ -27,8 +27,8 @@ export function ComandasOrderCreator ( ) {
     // With the product selected, get to variants
     const findProduct = (e) => {
         // Object spread for copy object in a object
-        setComanda({...comanda, product: {id: e.target.value, name: platillos[e.target.value].title, tooltip: false}})
-        const variantsAvailables = platillos[e.target.value].variant;
+        setComanda({...comanda, product: {id: e.target.value, name: dishes[e.target.value].title, tooltip: false}})
+        const variantsAvailables = dishes[e.target.value].variant;
         // Clear product variants
         variants.length > 0 && variants.splice(0, variants.length);
         if (variantsAvailables.length > 0) {
@@ -243,8 +243,8 @@ export function ComandasOrderCreator ( ) {
                                                                                                             }}
                     >
                         <option value='' disabled>Elige una opcion</option>
-                        { platillos.map( (platillo, index) => (
-                            <option value={index} key={index}>{platillo.title}</option>
+                        { dishes.length > 1 && dishes.map( (dish, index) => (
+                            <option value={index} key={index}>{dish.title}</option>
                             //<option value={JSON.stringify(platillo)} key={index} >{platillo.title}</option>
                             )
                         )}
@@ -320,7 +320,7 @@ export function ComandasOrderCreator ( ) {
                     <span className="tooltiptext px-1" id='allProducts'>Añada un producto</span>
                 </div>
             )}
-            <div className="w3-border p-2 my-3 w3-light-gray">
+            <div className="w3-border p-3 my-3 w3-light-gray">
                 <ul className="w3-ul p-0">
                     { comandas.elements.length > 0 && comandas.elements.map( (ord, idx) => (
                         ord.variants.map( (v,i) => (

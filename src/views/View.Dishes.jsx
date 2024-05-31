@@ -1,11 +1,10 @@
 import { useLoginContext } from "../context/LoginProvider";
-import { ComandasSidebar } from "../layouts/comandasLayouts/Comandas.Sidebar";
-import { ComandasMain } from "../layouts/comandasLayouts/Comandas.Main";
+import { DishesSidebar } from "../layouts/dishesLayouts/Dishes.Sidebar";
+import { DishesMain } from "../layouts/dishesLayouts/Dishes.Main";
 import { HomeSidebar } from "../layouts/homeLayouts/Home.Sidebar";
 import { HomeMain } from "../layouts/homeLayouts/Home.Main";
 
-
-export function ViewComandas ( ) {
+export function ViewDishes ( ) {
 
     const {login} = useLoginContext();
 
@@ -13,8 +12,8 @@ export function ViewComandas ( ) {
         <div className="container">
             { login.loginStatus ? (
                 <>
-                    <ComandasSidebar />
-                    <ComandasMain />
+                    <DishesSidebar />
+                    <DishesMain />
                 </>
             ) : (
                 <>

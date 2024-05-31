@@ -1,7 +1,7 @@
 import { useLoginContext } from "../../context/LoginProvider";
 import { Navbar } from "../../components/Navbar";
 import { NavbarCompact } from "../../components/NavbarCompact";
-import { HomeHeader } from "../../components/homeComponents/Home.Header";
+import { Header } from "../../components/Header";
 import { HomeBienvenida } from "../../components/homeComponents/Home.Bienvenida";
 import { KeepOut } from "../../components/KeepOut";
 
@@ -15,7 +15,7 @@ export function HomeMain ( ) {
             { login.loginStatus ? (
                 <>
                     <Navbar />
-                    <HomeHeader headerTitle='Sistema de Administración' />
+                    <Header headerTitle='Sistema de Administración' />
                     <HomeBienvenida />
                 </>
             ) : (

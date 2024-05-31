@@ -7,33 +7,58 @@ import { getFirestore, query, collection, where, orderBy, onSnapshot } from 'fir
 const app   =   initializeApp(firebaseConfig);
 const db    =   getFirestore(app);
 
-export async function getComandasData ( ) {
+export async function getOrdersData ( ) {
     const dayFiltered = new Date();
     dayFiltered.setHours(0,0,0,0)
-    const comandas     =   [];
+    const orders     =   [];
     try {
         const queryOrders   =   await query(collection(db, 'orders'), where('created', '>=', dayFiltered), orderBy('created', 'desc'));
         await onSnapshot(queryOrders, (querySnapshot) => {
             querySnapshot.forEach( (doc) => {
-                comandas.push( {id: doc.id, ...doc.data()} )
+                orders.push( {id: doc.id, ...doc.data()} )
             });
         });
-        return {comandas}
+        return {orders}
     } catch (error) {
         console.log(error)
     }
 }
 
-export async function getPlatillosData ( ) {
+export async function getDishesData ( ) {
     try {
         const queryDishes = query(collection(db, 'dishes'), orderBy('title'));
-        const platillos =   [];
+        const dishes =   [];
         await onSnapshot(queryDishes, (querySnapshot) => {
             querySnapshot.forEach( (doc) => {
-            platillos.push( {id: doc.id, ...doc.data()} )
+                dishes.push( {id: doc.id, ...doc.data()} )
             });
         });
-        return {platillos}
+        return {dishes}
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export async function getAllData ( ) {
+    const dayFiltered = new Date();
+    dayFiltered.setHours(0,0,0,0)
+    const orders     =   [];
+    //
+    const dishes =   [];
+    try {
+        const queryOrders   =   await query(collection(db, 'orders'), where('created', '>=', dayFiltered), orderBy('created', 'desc'));
+        await onSnapshot(queryOrders, (querySnapshot) => {
+            querySnapshot.forEach( (doc) => {
+                orders.push( {id: doc.id, ...doc.data()} )
+            });
+        });
+        const queryDishes   =   await query(collection(db, 'dishes'), orderBy('title'));
+        await onSnapshot(queryDishes, (querySnapshot) => {
+            querySnapshot.forEach( (doc) => {
+                dishes.push( {id: doc.id, ...doc.data()} )
+            });
+        });
+        return {orders, dishes}
     } catch (error) {
         console.log(error)
     }

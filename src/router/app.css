@@ -4,6 +4,7 @@ body, html {
     height:           100%;
     width:            100%;
     scroll-behavior:  smooth;
+    background-color: #f1f1f1;
     }
   p, h1, h2, h3, h4, h5, h6, figure, ul {
     margin:           0;

@@ -3,10 +3,11 @@ import { ViewNotFound } from "../views/View.NotFound";
 import { GeneralLayout } from "../layouts/generalLayouts/General.Layout";
   import './app.css'
   import { ViewHome } from "../views/View.Home";
-  import { ViewComandas } from "../views/View.Comandas";
-  import { getPlatillosData } from "../context/jsonCalls";
-  import { getComandasData } from "../context/jsonCalls";
-  import { ViewPlatillos } from "../views/View.Platillos";
+  import { ViewOrders } from "../views/View.Orders";
+  import { getAllData } from "../context/jsonCalls";
+  import { getOrdersData } from "../context/jsonCalls";
+  import { ViewDishes } from "../views/View.Dishes";
+  import { getDishesData } from "../context/jsonCalls";
 
 
 export const App = createBrowserRouter([
@@ -21,12 +22,13 @@ export const App = createBrowserRouter([
             path:         '/',
             element:      <ViewHome />
           },{
-            path:     'comandas',
-            element:  <ViewComandas />,
-            loader:   getPlatillosData
+            path:     'ordenes',
+            element:  <ViewOrders />,
+            loader:   getAllData
           },{
             path:     'platillos',
-            element:  <ViewPlatillos />
+            element:  <ViewDishes />,
+            loader:   getDishesData
           }
         ]
       }
