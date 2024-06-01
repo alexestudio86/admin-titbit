@@ -5,9 +5,11 @@ import { GeneralLayout } from "../layouts/generalLayouts/General.Layout";
   import { ViewHome } from "../views/View.Home";
   import { ViewOrders } from "../views/View.Orders";
   import { getAllData } from "../context/jsonCalls";
-  import { getOrdersData } from "../context/jsonCalls";
+    import { OrdersSidebarLayout } from "../layouts/ordersLayouts/Orders.Sidebar.Layout";
+    import { getOrdersData } from "../context/jsonCalls";
+    import { OrdersMainLayout } from "../layouts/ordersLayouts/Orders.Main.Layout";
+    import { getDishesData } from "../context/jsonCalls";
   import { ViewDishes } from "../views/View.Dishes";
-  import { getDishesData } from "../context/jsonCalls";
 
 
 export const App = createBrowserRouter([
@@ -19,15 +21,25 @@ export const App = createBrowserRouter([
         children: [
           {
             index:        true,
-            path:         '/',
-            element:      <ViewHome />
+            element:      <ViewHome />,
+            path:         '/'
           },{
-            path:     'ordenes',
             element:  <ViewOrders />,
-            loader:   getAllData
+            path:     'ordenes',
+            children: [
+              {
+                element:  <OrdersSidebarLayout />,
+                path:     '',
+                loader:   getOrdersData
+              },{
+                element:  <OrdersMainLayout />,
+                path:     '',
+                loader:   getDishesData
+              }
+            ]
           },{
-            path:     'platillos',
             element:  <ViewDishes />,
+            path:     'platillos',
             loader:   getDishesData
           }
         ]

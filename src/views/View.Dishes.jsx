@@ -1,8 +1,8 @@
 import { useLoginContext } from "../context/LoginProvider";
-import { DishesSidebar } from "../layouts/dishesLayouts/Dishes.Sidebar";
-import { DishesMain } from "../layouts/dishesLayouts/Dishes.Main";
-import { HomeSidebar } from "../layouts/homeLayouts/Home.Sidebar";
-import { HomeMain } from "../layouts/homeLayouts/Home.Main";
+import { DishesSidebarLayout } from "../layouts/dishesLayouts/Dishes.Sidebar.Layout";
+import { DishesMainLayout } from "../layouts/dishesLayouts/Dishes.Main.Layout";
+import { HomeSidebarLayout } from "../layouts/homeLayouts/Home.Sidebar.Layout";
+import { HomeMainLayout } from "../layouts/homeLayouts/Home.Main.Layout";
 
 export function ViewDishes ( ) {
 
@@ -12,13 +12,13 @@ export function ViewDishes ( ) {
         <div className="container">
             { login.loginStatus ? (
                 <>
-                    <DishesSidebar />
-                    <DishesMain />
+                    <DishesSidebarLayout />
+                    <DishesMainLayout />
                 </>
             ) : (
                 <>
-                    <HomeSidebar />
-                    <HomeMain />
+                    <HomeSidebarLayout />
+                    <HomeMainLayout />
                 </>
             )}
         </div>

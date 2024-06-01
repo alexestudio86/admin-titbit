@@ -4,7 +4,7 @@ import { HomeSignInForm } from "../../components/homeComponents/Home.SignInForm"
 import { HomePlaceholderLogin } from "../../components/homeComponents/Home.PlaceholderLogin";
 
 
-export function HomeSidebar () {
+export function HomeSidebarLayout () {
 
     const {login}  =   useLoginContext();
 

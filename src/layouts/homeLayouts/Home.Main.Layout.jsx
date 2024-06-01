@@ -1,12 +1,12 @@
 import { useLoginContext } from "../../context/LoginProvider";
 import { Navbar } from "../../components/Navbar";
-import { NavbarCompact } from "../../components/NavbarCompact";
+import { NavbarCompact } from "../../components/Navbar.Compact";
 import { Header } from "../../components/Header";
 import { HomeBienvenida } from "../../components/homeComponents/Home.Bienvenida";
 import { KeepOut } from "../../components/KeepOut";
 
 
-export function HomeMain ( ) {
+export function HomeMainLayout ( ) {
 
     const {login} = useLoginContext()
 

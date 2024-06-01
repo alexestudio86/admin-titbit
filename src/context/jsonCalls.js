@@ -12,7 +12,7 @@ export async function getOrdersData ( ) {
     dayFiltered.setHours(0,0,0,0)
     const orders     =   [];
     try {
-        const queryOrders   =   await query(collection(db, 'orders'), where('created', '>=', dayFiltered), orderBy('created', 'desc'));
+        const queryOrders   =   query(collection(db, 'orders'), where('created', '>=', dayFiltered), orderBy('created', 'desc'));
         await onSnapshot(queryOrders, (querySnapshot) => {
             querySnapshot.forEach( (doc) => {
                 orders.push( {id: doc.id, ...doc.data()} )
@@ -25,9 +25,9 @@ export async function getOrdersData ( ) {
 }
 
 export async function getDishesData ( ) {
+    const dishes =   [];
     try {
         const queryDishes = query(collection(db, 'dishes'), orderBy('title'));
-        const dishes =   [];
         await onSnapshot(queryDishes, (querySnapshot) => {
             querySnapshot.forEach( (doc) => {
                 dishes.push( {id: doc.id, ...doc.data()} )

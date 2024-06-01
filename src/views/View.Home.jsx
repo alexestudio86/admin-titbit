@@ -1,11 +1,11 @@
-import { HomeSidebar } from "../layouts/homeLayouts/Home.Sidebar";
-import { HomeMain } from "../layouts/homeLayouts/Home.Main";
+import { HomeSidebarLayout } from "../layouts/homeLayouts/Home.Sidebar.Layout";
+import { HomeMainLayout } from "../layouts/homeLayouts/Home.Main.Layout";
 
 export function ViewHome () {
     return (
         <div className="container">
-            <HomeSidebar />
-            <HomeMain />
+            <HomeSidebarLayout />
+            <HomeMainLayout />
         </div>
     )
 }

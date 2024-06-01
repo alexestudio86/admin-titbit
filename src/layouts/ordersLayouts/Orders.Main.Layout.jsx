@@ -3,11 +3,13 @@ import { Header } from "../../components/Header";
 import { useLoaderData } from "react-router-dom";
 
 
-export function OrdersMain ( ) {
+export function OrdersMainLayout ( ) {
+
     const {orders} = useLoaderData();
     const dateConvertion = ( evt ) => {
         return evt.toDate().toDateString();
     }
+
     return (
         <main className="w3-main w3-border w3-border-light-gray zIndex-1" style={ {marginLeft: 400}}>
             <Navbar />
