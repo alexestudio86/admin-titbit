@@ -4,45 +4,28 @@ import { GeneralLayout } from "../layouts/generalLayouts/General.Layout";
   import './app.css'
   import { ViewHome } from "../views/View.Home";
   import { ViewOrders } from "../views/View.Orders";
-  import { getAllData } from "../context/jsonCalls";
-    import { OrdersSidebarLayout } from "../layouts/ordersLayouts/Orders.Sidebar.Layout";
-    import { getOrdersData } from "../context/jsonCalls";
-    import { OrdersMainLayout } from "../layouts/ordersLayouts/Orders.Main.Layout";
-    import { getDishesData } from "../context/jsonCalls";
+    import { getOrdersDishesData } from "../context/jsonCalls";
   import { ViewDishes } from "../views/View.Dishes";
+    import { getDishesData } from "../context/jsonCalls";
 
 
 export const App = createBrowserRouter([
   {
-    errorElement: <ViewNotFound />,
+    element:      <GeneralLayout />,
+    errorElement: (<GeneralLayout><ViewNotFound /></GeneralLayout>),
     children: [
       {
-        element:      <GeneralLayout />,
-        children: [
-          {
-            index:        true,
-            element:      <ViewHome />,
-            path:         '/'
-          },{
-            element:  <ViewOrders />,
-            path:     'ordenes',
-            children: [
-              {
-                element:  <OrdersSidebarLayout />,
-                path:     '',
-                loader:   getOrdersData
-              },{
-                element:  <OrdersMainLayout />,
-                path:     '',
-                loader:   getDishesData
-              }
-            ]
-          },{
-            element:  <ViewDishes />,
-            path:     'platillos',
-            loader:   getDishesData
-          }
-        ]
+        index:        true,
+        element:      <ViewHome />,
+        path:         '/'
+      },{
+        element:      <ViewOrders />,
+        path:         'ordenes',
+        loader:       getOrdersDishesData
+      },{
+        element:      <ViewDishes />,
+        path:         'platillos',
+        loader:       getDishesData
       }
     ]
   }

@@ -11,9 +11,7 @@ export function OrdersMainLayout ( ) {
     }
 
     return (
-        <main className="w3-main w3-border w3-border-light-gray zIndex-1" style={ {marginLeft: 400}}>
-            <Navbar />
-            <Header headerTitle='Alta de comandas' />
+        <>
             <h3 className="w3-padding w3-right-align w3-large">Registros Totales: {orders.length}</h3>
             { orders.length > 1
                 &&
@@ -36,14 +34,14 @@ export function OrdersMainLayout ( ) {
                                             <div className="w3-col s4 w3-center" v-if='order.delivered'>
                                                 {order.delivered
                                                     ?
-                                                        <small><b>entregado</b></small>
+                                                    <small><b>entregado</b></small>
                                                     :
-                                                        Object.entries(order.status).map( ([key, subject], idx) => (
-                                                            subject &&
-                                                                <div key={idx} >
-                                                                    <small><b>{key}</b></small>
-                                                                </div>
-                                                         ) )
+                                                    Object.entries(order.status).map( ([key, subject], idx) => (
+                                                        subject &&
+                                                            <div key={idx} >
+                                                                <small><b>{key}</b></small>
+                                                            </div>
+                                                    ) )
                                                 }
                                             </div>
                                         </div>
@@ -75,8 +73,8 @@ export function OrdersMainLayout ( ) {
                             </div>
                         </div>
                     </article>
-                ))
+                ) )
             }
-        </main>
+        </>
     )
 }

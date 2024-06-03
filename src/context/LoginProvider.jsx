@@ -27,7 +27,12 @@ export function LoginProvider ( {children} ) {
         })
     }
 
-    const [login, setLogin] = useState({loader: false, loginStatus: false});
+    const [login, setLogin] = useState(
+        {
+            loader: false,
+            loginStatus: false
+        }
+    );
     const getIn = async() => {
         setLogin({...login, loader : true})
         try {

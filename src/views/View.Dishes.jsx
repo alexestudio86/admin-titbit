@@ -1,26 +1,36 @@
 import { useLoginContext } from "../context/LoginProvider";
-import { DishesSidebarLayout } from "../layouts/dishesLayouts/Dishes.Sidebar.Layout";
-import { DishesMainLayout } from "../layouts/dishesLayouts/Dishes.Main.Layout";
-import { HomeSidebarLayout } from "../layouts/homeLayouts/Home.Sidebar.Layout";
-import { HomeMainLayout } from "../layouts/homeLayouts/Home.Main.Layout";
+import { GeneralSidebarLayout } from "../layouts/generalLayouts/General.Sidebar.Layout";
+    import { HomeSidebarLayout } from "../layouts/homeLayouts/Home.Sidebar.Layout";
+    import { DishesSidebarLayout } from "../layouts/dishesLayouts/Dishes.Sidebar.Layout";
+import { GeneralMainLayout } from "../layouts/generalLayouts/General.Main.Layout";
+    import { HomeMainLayout } from "../layouts/homeLayouts/Home.Main.Layout";
+    import { DishesMainLayout } from "../layouts/dishesLayouts/Dishes.Main.Layout";
 
 export function ViewDishes ( ) {
 
     const {login} = useLoginContext();
 
     return (
-        <div className="container">
+        <>
             { login.loginStatus ? (
                 <>
-                    <DishesSidebarLayout />
-                    <DishesMainLayout />
+                    <GeneralSidebarLayout>
+                        <DishesSidebarLayout />
+                    </GeneralSidebarLayout>
+                    <GeneralMainLayout>
+                        <DishesMainLayout />
+                    </GeneralMainLayout>
                 </>
             ) : (
                 <>
-                    <HomeSidebarLayout />
-                    <HomeMainLayout />
+                    <GeneralSidebarLayout>
+                        <HomeSidebarLayout />
+                    </GeneralSidebarLayout>
+                    <GeneralMainLayout>
+                        <HomeMainLayout />
+                    </GeneralMainLayout>
                 </>
             )}
-        </div>
+        </>
     )
 }
