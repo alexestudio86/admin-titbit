@@ -3,6 +3,7 @@ import { ViewNotFound } from "../views/View.NotFound";
 import { GeneralLayout } from "../layouts/generalLayouts/General.Layout";
   import './app.css'
   import { ViewHome } from "../views/View.Home";
+  import { ViewLogin } from "../views/View.Login";
   import { ViewOrders } from "../views/View.Orders";
     import { getOrdersDishesData } from "../context/jsonCalls";
   import { ViewDishes } from "../views/View.Dishes";
@@ -18,6 +19,9 @@ export const App = createBrowserRouter([
         index:        true,
         element:      <ViewHome />,
         path:         '/'
+      },{
+        element:      <ViewLogin/>,
+        path:         "login"
       },{
         element:      <ViewOrders />,
         path:         'ordenes',
