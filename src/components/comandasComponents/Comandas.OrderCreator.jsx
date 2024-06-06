@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import './comandasOrderCreator.css';
 
 
-export function ComandasOrderCreator ( ) {
+export function ComandasOrderCreator () {
 
     const {dishes} = useLoaderData();
     // Body of forms to make a Comanda

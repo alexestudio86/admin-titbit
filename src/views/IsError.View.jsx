@@ -2,7 +2,7 @@ import { Navbar } from "../components/Navbar";
 import { ErrorPage } from "../components/Error.Page";
 
 
-export function ViewNotFound () {
+export function IsErrorView () {
     return (
         <>
             <Navbar />

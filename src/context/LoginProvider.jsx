@@ -1,4 +1,4 @@
-import { useState, useContext, createContext } from "react";
+import { useState, useEffect, useContext, createContext } from "react";
 import firebaseConfig from '../config/firebase.js'
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
@@ -12,57 +12,51 @@ const auth  =   getAuth(app);
 
 //Use Login Context
 const loginContext = createContext();
-export function useLoginContext ( ) {
+export function useLoginContext () {
     return useContext(loginContext)
 }
 
 
 export function LoginProvider ( {children} ) {
 
-    const [userData, setUserData] = useState({email: '', password: ''});
-    const updateUserData = (evt) => {
-        setUserData({
-            ...userData,
-            [evt.target.name]: evt.target.value
-        })
+    const [user, setUser] = useState({
+        email:          '',
+        password:       '',
+        authenticated:  false,
+        loader:         false
+    });
+    const handleChange = ({ target: { value, name } }) => {
+        setUser({ ...user, [name]: value });
     }
 
-    const [login, setLogin] = useState(
-        {
-            loader: false,
-            loginStatus: false
-        }
-    );
-    const getIn = async() => {
-        setLogin({...login, loader : true})
+    const login = async() => {
+        setUser({...user, loader:true })
         try {
-            //Make login
-            await signInWithEmailAndPassword(auth, userData.email, userData.password);
-            //Check login
-            const user = auth.currentUser
-            onAuthStateChanged(auth, (user) => {
-                if( user ){
-                    setLogin({...login, loader: false, loginStatus : true})
-                }else{
-                    setLogin({...login, loader: false, loginStatus : false})
-                }
-            });
+            const userCredetntials = await signInWithEmailAndPassword(auth, user.email, user.password);
+            setUser({...user, authenticated:true, loader:false })
         } catch (error) {
             console.log(`Code: ${error.code}, message: ${error.message}`);
         }
-    }
-    const getOut = async() => {
+    };
+
+    const logout = async() => {
         try {
             await signOut(auth);
+            setUser({...user, authenticated:false});
         } catch (error) {
             console.log(error);
         }
-        console.log('salido')
     }
 
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, currentUser => {
+            currentUser && setUser({...user, email: currentUser.email, authenticated: true});
+        });
+        return () => unsubscribe();
+    }, []);
     
     return (
-        <loginContext.Provider value={{userData, updateUserData, login, getIn, getOut}}>
+        <loginContext.Provider value={{user, handleChange, login, logout}}>
             {children}
         </loginContext.Provider>
     )

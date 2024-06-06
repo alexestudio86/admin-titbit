@@ -25,9 +25,9 @@ export async function getOrdersData ( ) {
 }
 
 export async function getDishesData ( ) {
+    const dishes =   [];
     try {
-        const dishes =   [];
-        const queryDishes = query(collection(db, 'dishes'), orderBy('title'));
+        const queryDishes = await query(collection(db, 'dishes'), orderBy('title'));
         await onSnapshot(queryDishes, (querySnapshot) => {
             querySnapshot.forEach( (doc) => {
                 dishes.push( {id: doc.id, ...doc.data()} )

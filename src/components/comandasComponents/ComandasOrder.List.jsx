@@ -1,9 +1,7 @@
-import { Navbar } from "../../components/Navbar";
-import { Header } from "../../components/Header";
 import { useLoaderData } from "react-router-dom";
 
 
-export function OrdersMainLayout ( ) {
+export function ComandasOrderList ( ) {
 
     const {orders} = useLoaderData();
     const dateConvertion = ( evt ) => {
