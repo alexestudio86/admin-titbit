@@ -1,7 +1,3 @@
-import { Navbar } from "../Navbar";
-import { Header } from "../Header";
-
-
 export function DishesEditorList () {
   return (
     <div className="w3-white px-3 py-1">

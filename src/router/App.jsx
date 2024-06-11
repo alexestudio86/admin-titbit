@@ -4,11 +4,8 @@ import { GeneralLayout } from "../layouts/generalLayouts/General.Layout";
   import './app.css'
   import { IsHomeView } from "../views/IsHome.View";
   import { IsPageView } from "../views/IsPage.View";
-    import { OrdersLayout } from "../layouts/ordersLayouts/Orders.Layout";
-    import { getOrdersDishesData } from "../context/jsonCalls";
+    import {OrdersLayout} from "../layouts/ordersLayouts/Orders.Layout";
     import { DishesLayout } from "../layouts/dishesLayouts/Dishes.Layout";
-    import { getDishesData } from "../context/jsonCalls";
-
 
 
 export const App = createBrowserRouter([
@@ -28,12 +25,10 @@ export const App = createBrowserRouter([
         children:     [
           {
             element:    <OrdersLayout />,
-            path:       'ordenes', 
-            loader:     getOrdersDishesData
+            path:       'ordenes'
           },{
             element:    <DishesLayout />,
             path:       'platillos',
-            loader:     getDishesData
           }
         ]
       }

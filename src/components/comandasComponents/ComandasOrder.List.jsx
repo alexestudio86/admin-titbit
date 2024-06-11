@@ -1,18 +1,19 @@
-import { useLoaderData } from "react-router-dom";
+import { useOrdersContext } from "../../context/DataProvider";
 
 
 export function ComandasOrderList ( ) {
 
-    const {orders} = useLoaderData();
+    const {orders} = useOrdersContext();
+
     const dateConvertion = ( evt ) => {
+        console.log(evt)
         return evt.toDate().toDateString();
     }
 
     return (
         <>
             <h3 className="w3-padding w3-right-align w3-large">Registros Totales: {orders.length}</h3>
-            { orders.length > 1
-                &&
+            { 
                 orders.map( (order, index) => (
                     <article key={index} className="w3-white mb-3 px-3 py-1">
                         <div className="w3-row">

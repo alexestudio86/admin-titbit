@@ -1,14 +1,9 @@
 import { useState, useEffect, useContext, createContext } from "react";
-import firebaseConfig from '../config/firebase.js'
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
+import {auth} from '../config/firebase.js'
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 
-// Initialize Firebase
-const app   =   initializeApp(firebaseConfig);
-const auth  =   getAuth(app);
-
-
-//-- CREATE CUSTOM HOOKS --
+//Initialize
+//const auth  = getAuth(app);
 
 //Use Login Context
 const loginContext = createContext();

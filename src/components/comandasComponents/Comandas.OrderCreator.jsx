@@ -1,11 +1,12 @@
-import { useLoaderData } from "react-router-dom";
+import { useDishesContext } from "../../context/DataProvider";
 import { useEffect, useRef, useState } from "react";
 import './comandasOrderCreator.css';
 
 
 export function ComandasOrderCreator () {
 
-    const {dishes} = useLoaderData();
+    const {dishes} = useDishesContext();
+    
     // Body of forms to make a Comanda
     const [comanda, setComanda] = useState({
         product:    {
@@ -243,7 +244,7 @@ export function ComandasOrderCreator () {
                                                                                                             }}
                     >
                         <option value='' disabled>Elige una opcion</option>
-                        { dishes.length > 1 && dishes.map( (dish, index) => (
+                        { dishes.map( (dish, index) => (
                             <option value={index} key={index}>{dish.title}</option>
                             //<option value={JSON.stringify(platillo)} key={index} >{platillo.title}</option>
                             )

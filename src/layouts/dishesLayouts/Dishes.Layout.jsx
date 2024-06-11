@@ -1,3 +1,4 @@
+import { DishesProvider } from "../../context/DataProvider";
 import { useLoginContext } from "../../context/LoginProvider";
 import { GeneralSidebarLayout } from "../generalLayouts/General.Sidebar.Layout";
     import {DishesShowList} from "../../components/dishesComponents/DishesShow.List";
@@ -18,7 +19,9 @@ export function DishesLayout () {
                 {
                     user.authenticated
                     ?
-                    <DishesShowList />
+                    <DishesProvider>
+                        <DishesShowList />
+                    </DishesProvider>
                     :
                         user.loader
                         ?
