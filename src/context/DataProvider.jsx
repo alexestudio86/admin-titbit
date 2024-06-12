@@ -52,20 +52,21 @@ export function useDishesContext () {
 export const DishesProvider = ( {children} ) => {
     
     const [dishes, setDishes] = useState([]);
+    const [dishesLoader, setDishesLoader] = useState(false);
 
     const getDishes = async() => {
         try {            
             const dayFiltered = new Date();
             dayFiltered.setHours(0,0,0,0);
+            setDishesLoader(true);
             const queryDishes = query(collection(db, 'dishes'), orderBy('title'));
             onSnapshot( queryDishes, (querySnapshot) => {
                 const theDishes = [];
                 querySnapshot.forEach( (doc) => {
                     theDishes.push({id: doc.id, ...doc.data() });
                 });
-                console.log('theDishes: ', theDishes);
                 setDishes(theDishes);
-
+                setDishesLoader(false);
             });
         } catch (error) {
             return error;
@@ -78,7 +79,7 @@ export const DishesProvider = ( {children} ) => {
     },[])
 
     return (
-        <dishesContext.Provider value={{dishes}}>
+        <dishesContext.Provider value={{dishes, dishesLoader}}>
             {children}
         </dishesContext.Provider>
     )

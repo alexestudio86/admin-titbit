@@ -1,10 +1,10 @@
 import { DishesProvider } from "../../context/DataProvider";
 import { useLoginContext } from "../../context/LoginProvider";
-import { GeneralSidebarLayout } from "../generalLayouts/General.Sidebar.Layout";
+import { GeneralSidebarLayout } from "../generalLayouts/GeneralSidebar.Layout";
     import {DishesShowList} from "../../components/dishesComponents/DishesShow.List";
     import { HomePlaceholderLogin } from "../../components/homeComponents/Home.PlaceholderLogin";
     import { HomeSignInForm } from "../../components/homeComponents/Home.SignInForm";
-import { GeneralMainLayout } from "../../layouts/generalLayouts/General.Main.Layout";
+import { GeneralMainLayout } from "../../layouts/generalLayouts/GeneralMain.Layout";
     import {DishesEditorList} from "../../components/dishesComponents/DishesEditor.List";
     import { KeepOut } from "../../components/KeepOut";
 

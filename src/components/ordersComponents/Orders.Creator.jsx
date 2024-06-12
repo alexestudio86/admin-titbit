@@ -1,9 +1,9 @@
 import { useDishesContext } from "../../context/DataProvider";
 import { useEffect, useRef, useState } from "react";
-import './comandasOrderCreator.css';
+import './ordersCreator.css';
 
 
-export function ComandasOrderCreator () {
+export function OrdersCreator () {
 
     const {dishes} = useDishesContext();
     

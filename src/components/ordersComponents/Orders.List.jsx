@@ -1,12 +1,11 @@
 import { useOrdersContext } from "../../context/DataProvider";
 
 
-export function ComandasOrderList ( ) {
+export function OrdersList ( ) {
 
     const {orders} = useOrdersContext();
 
     const dateConvertion = ( evt ) => {
-        console.log(evt)
         return evt.toDate().toDateString();
     }
 

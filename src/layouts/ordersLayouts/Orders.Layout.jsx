@@ -1,20 +1,18 @@
 import { useLoginContext } from "../../context/LoginProvider";
-import { useOrdersContext } from "../../context/DataProvider";
-import { GeneralSidebarLayout } from "../generalLayouts/General.Sidebar.Layout";
-    import { OrdersProvider } from "../../context/DataProvider";
-        import {ComandasOrderCreator} from "../../components/comandasComponents/Comandas.OrderCreator";
+import { GeneralSidebarLayout } from "../generalLayouts/GeneralSidebar.Layout";
+    import { DishesProvider } from "../../context/DataProvider";
+        import { OrdersSidebarLayout } from "./OrdersSidebar.Layout";
     import { HomePlaceholderLogin } from "../../components/homeComponents/Home.PlaceholderLogin";
     import { HomeSignInForm } from "../../components/homeComponents/Home.SignInForm";
-import { GeneralMainLayout } from "../../layouts/generalLayouts/General.Main.Layout";
-    import { DishesProvider } from "../../context/DataProvider";
-        import { ComandasOrderList } from "../../components/comandasComponents/ComandasOrder.List";
+import { GeneralMainLayout } from "../../layouts/generalLayouts/GeneralMain.Layout";
+    import { OrdersProvider } from "../../context/DataProvider";
+        import { OrdersMainLayout } from "./OrdersMain.Layout";
     import { KeepOut } from "../../components/KeepOut";
 
 
 export function OrdersLayout () {
 
     const {user} = useLoginContext();
-
 
     return (
         <>
@@ -23,7 +21,7 @@ export function OrdersLayout () {
                     user.authenticated
                     ?
                     <DishesProvider>
-                        <ComandasOrderCreator/>
+                        <OrdersSidebarLayout/>
                     </DishesProvider>
                     :
                         user.loader
@@ -38,7 +36,7 @@ export function OrdersLayout () {
                         user.authenticated
                         ?
                         <OrdersProvider>
-                            <ComandasOrderList />
+                            <OrdersMainLayout />
                         </OrdersProvider>
                         :
                         <KeepOut/>
