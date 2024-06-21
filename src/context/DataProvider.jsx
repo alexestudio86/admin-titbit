@@ -1,10 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import {db} from '../config/firebase.js';
-import { query, collection, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { query, collection, where, orderBy, onSnapshot, addDoc, getDoc, doc } from 'firebase/firestore';
 
 
-//Initialize
-//const db    = getFirestore(app);
 
 const ordersContext = createContext();
 export function useOrdersContext () {
@@ -20,7 +18,7 @@ export const OrdersProvider = ( {children} ) => {
         dayFiltered.setHours(0,0,0,0);
         setOrdersLoader(true);
         try {        
-            const queryOrders   =   query(collection(db, 'orders'), where('created', '>=', dayFiltered), orderBy('created', 'desc'));
+            const queryOrders   =   await query(collection(db, 'orders'), where('created', '>=', dayFiltered), orderBy('created', 'desc'));
             onSnapshot(queryOrders, (querySnapshot) => {
                 setOrders(
                     querySnapshot.docs.map( doc => (
@@ -34,12 +32,33 @@ export const OrdersProvider = ( {children} ) => {
         }
     }
 
+    const [order, setOrder] = useState();
+    const addOrder = async( item ) => {
+        setOrdersLoader(true);
+        try {
+            const addItem = await addDoc(collection(db, 'orders'), item);
+            setOrdersLoader(false);
+            console.log('addItem: ', addItem)
+        } catch (error) {
+            return error
+        }
+    }
+    const getOrder = async( itemID ) => {
+        try {
+            const getItem = await getDoc(doc(db, "orders", itemID));
+            setOrder({id: getItem.id, ...getItem.data()});
+        } catch (error) {
+            return error
+        }
+    }
+
     useEffect( () => {
         getOrders();
     }, []);
 
+
     return (
-        <ordersContext.Provider value={ {orders, ordersLoader} }>
+        <ordersContext.Provider value={ {orders, ordersLoader, order, setOrder, addOrder, getOrder} }>
             {children}
         </ordersContext.Provider>
     )
@@ -59,7 +78,7 @@ export const DishesProvider = ( {children} ) => {
             const dayFiltered = new Date();
             dayFiltered.setHours(0,0,0,0);
             setDishesLoader(true);
-            const queryDishes = query(collection(db, 'dishes'), orderBy('title'));
+            const queryDishes = await query(collection(db, 'dishes'), orderBy('title'));
             onSnapshot( queryDishes, (querySnapshot) => {
                 const theDishes = [];
                 querySnapshot.forEach( (doc) => {

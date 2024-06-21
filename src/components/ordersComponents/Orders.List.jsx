@@ -1,9 +1,16 @@
 import { useOrdersContext } from "../../context/DataProvider";
+import { Fragment, useState } from "react";
+import { OrdersListModal } from "./OrdersList.Modal";
 
 
 export function OrdersList ( ) {
 
-    const {orders} = useOrdersContext();
+    const {orders, getOrder} = useOrdersContext();
+
+    const [modal, setModal] = useState({
+        userId: null,
+        show:  false
+    });
 
     const dateConvertion = ( evt ) => {
         return evt.toDate().toDateString();
@@ -27,7 +34,7 @@ export function OrdersList ( ) {
                                     <div className="w3-col m9">
                                         <div className="w3-row">
                                             <div className="w3-col s8">
-                                                <h1 className="w3-large p-1">{order.name}</h1>
+                                                <h1 className="w3-large p-1">{order.guest}</h1>
                                             </div>
                                             <div className="w3-col s4 w3-center" v-if='order.delivered'>
                                                 {order.delivered
@@ -43,9 +50,25 @@ export function OrdersList ( ) {
                                                 }
                                             </div>
                                         </div>
-                                        { order.details.length > 0 && order.details.map( (o, i) => (
-                                            <p className="w3-small" key={i}>{o}</p>
-                                        )) }
+                                        {/* Details */}
+                                        { order.details.map( (detail, index) => (
+                                            <Fragment key={index}>
+                                                { detail.variants.map( (d, i) => (
+                                                    <Fragment key={i}>
+                                                        {`${detail.product}${d.name && ', '+d.name} x ${d.quantity}`}
+                                                    </Fragment>
+                                                ) )}
+                                            </Fragment>
+                                        ))}
+                                        {/* order.details.length > 0 && order.details.map( (detail, index) => (
+                                            <Fragment key={index}>
+                                                {
+                                                    detail.variants.map( (d, i) => (
+                                                        <p className="w3-small" key={i}>{d.product}</p>
+                                                    ) )
+                                                }
+                                            </Fragment>
+                                        )) */}
                                         { order.comments.length > 0 && 
                                             <div className="py-2">
                                                 <p className="w3-panel w3-light-gray py-2 w3-small" >{order.comments}</p>
@@ -57,7 +80,15 @@ export function OrdersList ( ) {
                                             <button className="w3-button w3-white w3-border w3-border-red w3-round mx-1" data-ident='deleteModal' >
                                                 <i className="fas fa-trash text-danger w3-large"></i>
                                             </button>
-                                            <button className="w3-button w3-white w3-border w3-border-blue w3-round mx-1" data-ident='editModal' >
+                                            <button className="w3-button w3-white w3-border w3-border-blue w3-round mx-1" data-ident='editModal' onClick={ () => {
+                                                                                                                                                            setModal(
+                                                                                                                                                                {
+                                                                                                                                                                    userId: order.id,
+                                                                                                                                                                    show:   true
+                                                                                                                                                                }
+                                                                                                                                                            );
+                                                                                                                                                        }
+                                            } >
                                                 <i className="fas fa-edit text-primary w3-large"></i>
                                             </button>
                                         </div>
@@ -73,6 +104,7 @@ export function OrdersList ( ) {
                     </article>
                 ) )
             }
+            {modal.show && <OrdersListModal modal={modal} setModal={setModal} />}
         </>
     )
 }

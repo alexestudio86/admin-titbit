@@ -1,11 +1,11 @@
-import { DishesProvider } from "../../context/DataProvider";
 import { useLoginContext } from "../../context/LoginProvider";
 import { GeneralSidebarLayout } from "../generalLayouts/GeneralSidebar.Layout";
-    import {DishesShowList} from "../../components/dishesComponents/DishesShow.List";
+    import { DishesProvider } from "../../context/DataProvider";
+        import { DishesMainLayout } from "./DishesMain.Layout";
     import { HomePlaceholderLogin } from "../../components/homeComponents/Home.PlaceholderLogin";
     import { HomeSignInForm } from "../../components/homeComponents/Home.SignInForm";
 import { GeneralMainLayout } from "../../layouts/generalLayouts/GeneralMain.Layout";
-    import {DishesEditorList} from "../../components/dishesComponents/DishesEditor.List";
+    import { DishesSidebarLayout } from "./DishesSidebar.Layout";
     import { KeepOut } from "../../components/KeepOut";
 
 
@@ -20,7 +20,7 @@ export function DishesLayout () {
                     user.authenticated
                     ?
                     <DishesProvider>
-                        <DishesShowList />
+                        <DishesMainLayout />
                     </DishesProvider>
                     :
                         user.loader
@@ -34,7 +34,7 @@ export function DishesLayout () {
                 {
                     user.authenticated
                     ?
-                    <DishesEditorList />
+                    <DishesSidebarLayout />
                     :
                     <KeepOut/>
                 }

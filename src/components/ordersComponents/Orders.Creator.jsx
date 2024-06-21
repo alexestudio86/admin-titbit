@@ -1,4 +1,4 @@
-import { useDishesContext } from "../../context/DataProvider";
+import { useDishesContext, useOrdersContext } from "../../context/DataProvider";
 import { useEffect, useRef, useState } from "react";
 import './ordersCreator.css';
 
@@ -6,6 +6,7 @@ import './ordersCreator.css';
 export function OrdersCreator () {
 
     const {dishes} = useDishesContext();
+    const {addOrder} = useOrdersContext();
     
     // Body of forms to make a Comanda
     const [comanda, setComanda] = useState({
@@ -109,10 +110,10 @@ export function OrdersCreator () {
     }, [comanda.quantity]);
     const [comandas, setComandas] = useState({
         elements:       [],
-        comment:        '',
+        comments:        '',
         invoice:        false,
         schedule:       false,   
-        timeCollect:    new Date().toISOString().substring(0,10),
+        timeCollect:    new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         guest:          ''
     });
     const addElement = () => {
@@ -166,7 +167,7 @@ export function OrdersCreator () {
                         name:       comanda.variant.name,
                         quantity:   comanda.quantity
                     }]
-            }]
+                }]
             });
         };
         //Clear comanda product and variant
@@ -215,14 +216,27 @@ export function OrdersCreator () {
         if (comandas.elements.length < 1) {
             setComanda({...comanda, elementsTooltip: true});
         }else{
-        //if product name exist
-            //If variants exist
             if (comandas.guest.length < 3) {
                 setComanda({...comanda, guestNameTooltip: true});
-                console.log('a');
             }else{
-            //If variants not exist
-                console.log('b');
+                addOrder({
+                    comments:   comandas.comments,
+                    created:    new Date(),
+                    delivered:  false,
+                    details:    comandas.elements,
+                    invoice:    comandas.invoice,
+                    modified:   new Date(),
+                    cliente:    comandas.guest,
+                    status:     {
+                        trabajando: true,
+                        retrasado: false
+                    },
+                    schedule:   comandas.schedule,
+                    timeCollect: new Date ( new Date( new Date().setHours( parseInt(comandas.timeCollect.split(':')[0]) ) ).setMinutes( parseInt(comandas.timeCollect.split(':')[1]) ) )
+                });
+                setComanda({product: {id: '', name: '', tooltip: false}, variant: {id: '', name: '', tooltip: false}, quantity: 1, elementsTooltip: false, guestNameTooltip:   false});
+                setVariants([]);
+                setComandas({...comandas, elements: [], guest: ''})
             };
         };
     }
@@ -234,7 +248,7 @@ export function OrdersCreator () {
                     <span>*Comanda</span>
                     {comanda.product.tooltip && (
                         <div className="tooltip">
-                            <span className="tooltiptext px-1" id='comandaTooltip'>Seleccione una</span>
+                            <span className="tooltiptext px-1" id='comandaTooltip'>Selecciona Producto</span>
                         </div>
                     )}
                     {/* NOMBRE */}
@@ -243,7 +257,7 @@ export function OrdersCreator () {
                                                                                                                 findProduct(e);
                                                                                                             }}
                     >
-                        <option value='' disabled>Elige una opcion</option>
+                        <option value='' disabled>Selecciona variante</option>
                         { dishes.map( (dish, index) => (
                             <option value={index} key={index}>{dish.title}</option>
                             //<option value={JSON.stringify(platillo)} key={index} >{platillo.title}</option>
@@ -254,7 +268,7 @@ export function OrdersCreator () {
                         <div className='my-3'>
                             {comanda.variant.tooltip && (
                                 <div className="tooltip">
-                                    <span className="tooltiptext px-1" id='elementsTooltip'>Seleccione producto</span>
+                                    <span className="tooltiptext px-1" id='elementsTooltip'>Selecciona producto</span>
                                 </div>
                             )}
                             {/* VARIANTE */}
@@ -345,7 +359,7 @@ export function OrdersCreator () {
                 {/* COMENTARIOS */}
                 <div className="w3-threequarter">
                     <span>Comentarios</span>
-                    <textarea className="w3-input w3-border" value={comandas.comment} onChange={e => setComandas({...comandas, comment: e.target.value})} ></textarea>
+                    <textarea className="w3-input w3-border" value={comandas.comments} onChange={e => setComandas({...comandas, comments: e.target.value})} ></textarea>
                 </div>
                 {/* FACTURA */}
                 <div className="w3-rest w3-right">
@@ -353,7 +367,7 @@ export function OrdersCreator () {
                         <label htmlFor='invoice'>Factura</label>
                     </div>
                     <div className="w3-padding">
-                        <input className='w3-check' type='checkbox' id="invoice" value={comandas.checked} onChange={ e => setComandas({...comandas, invoice: !comandas.invoice}) } />
+                        <input className='w3-check' type='checkbox' id="invoice" checked={comandas.invoice} onChange={ e => setComandas({...comandas, invoice: !comandas.invoice}) } />
                     </div>
                 </div>
             </div>
@@ -373,22 +387,22 @@ export function OrdersCreator () {
                         <span>*Horario</span>
                     </div>
                     <div>
-                        <input className="w3-input w3-border" type="date" value={comandas.timeCollect} onChange={ e => setComandas({...comandas, timeCollect: e.target.value}) } />
+                        <input className="w3-input w3-border" type="time" value={ comandas.timeCollect } onChange={ e => setComandas({...comandas, timeCollect: e.target.value}) }  />
                     </div>
                 </div>
             </div>
             <hr />
             {/* CLIENTE */}
             <div className="w3-row">
-                <div className="w3-rest m10">
+                <div className="w3-col m12">
                     <div className='mb-3'>
-                        {comanda.elementsTooltip && (
+                        {comanda.guestNameTooltip && (
                             <div className="tooltip">
-                                <span className="tooltiptext px-1" id='guestTooltip'>Escriba un nombre</span>
+                                <span className="tooltiptext px-1" id='guestTooltip'>Escriba un nombre válido</span>
                             </div>
                         )}
                         <span>*Cliente</span>
-                        <input className='w3-input w3-border' type='text' id='exampleInputEmail1' aria-describedby='emailHelp' />
+                        <input className='w3-input w3-border' type='text' id='guestName' value={comandas.guest} onChange={ e => setComandas({...comandas, guest: e.target.value}) } />
                     </div>
                 </div>
             </div>

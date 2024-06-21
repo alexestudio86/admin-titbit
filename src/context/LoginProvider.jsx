@@ -18,7 +18,8 @@ export function LoginProvider ( {children} ) {
         email:          '',
         password:       '',
         authenticated:  false,
-        loader:         false
+        loader:         false,
+        error:          false,
     });
     const handleChange = ({ target: { value, name } }) => {
         setUser({ ...user, [name]: value });
@@ -31,6 +32,10 @@ export function LoginProvider ( {children} ) {
             setUser({...user, authenticated:true, loader:false })
         } catch (error) {
             console.log(`Code: ${error.code}, message: ${error.message}`);
+            setUser({...user, loader:false, error:true });
+            setTimeout( () => {
+                setUser({...user, error:false });
+            }, 600)
         }
     };
 
@@ -39,7 +44,7 @@ export function LoginProvider ( {children} ) {
             await signOut(auth);
             setUser({...user, authenticated:false});
         } catch (error) {
-            console.log(error);
+            return error;
         }
     }
 

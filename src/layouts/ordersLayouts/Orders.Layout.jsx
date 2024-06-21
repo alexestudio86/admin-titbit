@@ -21,7 +21,9 @@ export function OrdersLayout () {
                     user.authenticated
                     ?
                     <DishesProvider>
-                        <OrdersSidebarLayout/>
+                        <OrdersProvider>
+                            <OrdersSidebarLayout/>
+                        </OrdersProvider>
                     </DishesProvider>
                     :
                         user.loader
