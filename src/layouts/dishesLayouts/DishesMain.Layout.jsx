@@ -1,6 +1,6 @@
 import { useDishesContext } from "../../context/DataProvider";
-import { DishesShowListPlaceholder } from "../../components/dishesComponents/DishesShowList.Placeholder";
-import { DishesShowList } from "../../components/dishesComponents/DishesShow.List";
+import { DishesListPlaceholder } from "../../components/dishesComponents/DishesList.Placeholder";
+import { DishesList } from "../../components/dishesComponents/Dishes.List";
 
 export function DishesMainLayout () {
 
@@ -9,11 +9,11 @@ export function DishesMainLayout () {
     return (
         <>
             {
-                dishesLoader
+                !dishesLoader
                 ?
-                <DishesShowListPlaceholder />
+                <DishesList />
                 :
-                <DishesShowList />
+                <DishesListPlaceholder />
             }
         </>
     )

@@ -22,7 +22,8 @@ export function OrdersCreator () {
         },
         quantity:   1,
         elementsTooltip:    false,
-        guestNameTooltip:   false
+        guestNameTooltip:   false,
+        loader:             false
     });
     // Check if variants exist and add this to list
     const [variants, setVariants] = useState([]);
@@ -109,14 +110,16 @@ export function OrdersCreator () {
         }
     }, [comanda.quantity]);
     const [comandas, setComandas] = useState({
-        elements:       [],
         comments:        '',
+        elements:       [],
         invoice:        false,
         schedule:       false,   
         timeCollect:    new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        guest:          ''
+        guest:          '',
+        loader:         false
     });
     const addElement = () => {
+        setComanda({...comanda, loader: true})
         //Search product in Comandas
         const resProduct = comandas.elements.findIndex( ord => ord.product === comanda.product.name);
         //If the pruduct is found
@@ -135,11 +138,13 @@ export function OrdersCreator () {
                                 if (v.name === comanda.variant.name) {
                                     return {
                                         name:       comanda.variant.name,
-                                        quantity:   comanda.quantity
+                                        quantity:   comanda.quantity,
+                                        price:      0
                                     }
                                 };
                                 return v;
-                            })
+                            }),
+                            basePrice:  0
                         }
                     };
                     return o;
@@ -160,8 +165,9 @@ export function OrdersCreator () {
             };
         }else{
             //The product was not found and will be created
-            setComandas({...comandas, 
-                elements: [{...comandas.elements,
+            setComandas({
+                ...comandas, 
+                elements:   [{...comandas.elements,
                     product:    comanda.product.name,
                     variants: [{
                         name:       comanda.variant.name,
@@ -171,8 +177,10 @@ export function OrdersCreator () {
             });
         };
         //Clear comanda product and variant
-        setComanda({product: {id: '', name: '', tooltip: false}, variant: {id: '', name: '', tooltip: false}, quantity: 1});
-        setVariants([]);
+        setTimeout( () => {
+            setComanda({product: {id: '', name: '', tooltip: false}, variant: {id: '', name: '', tooltip: false}, quantity: 1, loader: false });
+            setVariants([]);
+        }, 700)
     };
     const validateComanda = () => {
         //If product name not exist
@@ -221,114 +229,125 @@ export function OrdersCreator () {
             }else{
                 addOrder({
                     comments:   comandas.comments,
-                    created:    new Date(),
-                    delivered:  false,
+                    timestamp:  {
+                        created:    new Date(),
+                        modified:   new Date()
+                    },
                     details:    comandas.elements,
                     invoice:    comandas.invoice,
-                    modified:   new Date(),
-                    cliente:    comandas.guest,
+                    guestName:    comandas.guest,
                     status:     {
-                        trabajando: true,
-                        retrasado: false
+                        working:    true,
+                        delayed:    false,
+                        delivered:  false
                     },
-                    schedule:   comandas.schedule,
-                    timeCollect: new Date ( new Date( new Date().setHours( parseInt(comandas.timeCollect.split(':')[0]) ) ).setMinutes( parseInt(comandas.timeCollect.split(':')[1]) ) )
+                    schedule:   {
+                        collect:    comandas.schedule,
+                        time:       new Date ( new Date( new Date().setHours( parseInt(comandas.timeCollect.split(':')[0]) ) ).setMinutes( parseInt(comandas.timeCollect.split(':')[1]) ) )
+                    },
                 });
                 setComanda({product: {id: '', name: '', tooltip: false}, variant: {id: '', name: '', tooltip: false}, quantity: 1, elementsTooltip: false, guestNameTooltip:   false});
                 setVariants([]);
-                setComandas({...comandas, elements: [], guest: ''})
+                setComandas({...comandas, comments: '', elements: [], guest: ''})
             };
         };
     }
 
     return (
         <div className='w3-white p-3'>
-            <form onSubmit={ e => e.preventDefault()}>
-                <div className='mb-3'>
-                    <span>*Comanda</span>
-                    {comanda.product.tooltip && (
-                        <div className="tooltip">
-                            <span className="tooltiptext px-1" id='comandaTooltip'>Selecciona Producto</span>
-                        </div>
-                    )}
-                    {/* NOMBRE */}
-                    {/* Dont assign a dynamic value if you use another value in options */}
-                    <select value={comanda.product.id} className='w3-select w3-white' name='nameComandas' id="nameComandas" onChange={ e => {
-                                                                                                                findProduct(e);
-                                                                                                            }}
-                    >
-                        <option value='' disabled>Selecciona variante</option>
-                        { dishes.map( (dish, index) => (
-                            <option value={index} key={index}>{dish.title}</option>
-                            //<option value={JSON.stringify(platillo)} key={index} >{platillo.title}</option>
-                            )
+            {!comanda.loader
+            ?
+                <form onSubmit={ e => e.preventDefault()}>
+                    <div className='mb-3'>
+                        <span>*Comanda</span>
+                        {comanda.product.tooltip && (
+                            <div className="tooltip">
+                                <span className="tooltiptext px-1" id='comandaTooltip'>Selecciona Producto</span>
+                            </div>
                         )}
-                    </select>
-                    { variants.length > 0 && (
-                        <div className='my-3'>
-                            {comanda.variant.tooltip && (
-                                <div className="tooltip">
-                                    <span className="tooltiptext px-1" id='elementsTooltip'>Selecciona producto</span>
-                                </div>
+                        {/* NOMBRE */}
+                        {/* Dont assign a dynamic value if you use another value in options */}
+                        <select value={comanda.product.id} className='w3-select w3-white' name='nameComandas' id="nameComandas" onChange={ e => {
+                                                                                                                    findProduct(e);
+                                                                                                                }}
+                        >
+                            <option value='' disabled>Selecciona variante</option>
+                            { dishes.map( (dish, index) => (
+                                <option value={index} key={index}>{dish.title}</option>
+                                //<option value={JSON.stringify(platillo)} key={index} >{platillo.title}</option>
+                                )
                             )}
-                            {/* VARIANTE */}
-                            <div className="w3-row">
-                                <span>*Variante</span>
-                                <select value={comanda.variant.id} className='w3-select w3-white' name="variantComanda" id="variantComanda" onChange={ e => {
-                                                                                                                                setVariant(e);
-                                                                                                                            }}
-                                >
-                                    <option value='' disabled >Seleccione variante</option>
-                                    { variants.map( (v, i) => (
-                                        <option value={i} key={i} >{v}</option>
-                                    ) ) }
-                                </select>
-                            </div>
-                        </div>
-                    ) }
-                    <div className='w3-row py-2'>
-                        <div className="w3-col s8">
-                            <div className="w3-row">
-                                <div className="w3-col s3">
-                                    {/* Cantidad Menos */}
-                                    <button className='w3-button w3-border w3-border-teal w3-text-teal w-100' onMouseDown={ () => comanda.quantity > 1 && checkCounter({action: 'minusCounter'}) }
-                                                                                                onTouchStart={ () => comanda.quantity > 1 && checkCounter({action: 'minusCounter'}) }
-                                                                                                onMouseUp={ () => checkCounter({action: 'stopCounter'}) }
-                                                                                                onTouchEnd={ () => checkCounter({action: 'stopCounter'}) }
-                                                                                                onMouseLeave={ () => checkCounter({action: 'stopCounter'})}
+                        </select>
+                        { variants.length > 0 && (
+                            <div className='my-3'>
+                                {comanda.variant.tooltip && (
+                                    <div className="tooltip">
+                                        <span className="tooltiptext px-1" id='elementsTooltip'>Selecciona producto</span>
+                                    </div>
+                                )}
+                                {/* VARIANTE */}
+                                <div className="w3-row">
+                                    <span>*Variante</span>
+                                    <select value={comanda.variant.id} className='w3-select w3-white' name="variantComanda" id="variantComanda" onChange={ e => {
+                                                                                                                                    setVariant(e);
+                                                                                                                                }}
                                     >
-                                        <i className="fa-solid fa-angle-down"></i>
-                                    </button>
-                                </div>
-                                <div className="w3-col s6 w3-padding w3-border w3-center">
-                                    <span>{comanda.quantity}</span>
-                                </div>
-                                <div className="w3-col s3">
-                                    {/* Cantidad mas */}
-                                    <button className='w3-button w3-border w3-border-teal w3-text-teal w-100' onMouseDown={ () => comanda.quantity < 50 && checkCounter({action: 'plusCounter'}) }
-                                                                                                onTouchStart={ () => comanda.quantity < 50 && checkCounter({action: 'plusCounter'}) }
-                                                                                                onMouseUp={ () => checkCounter({action: 'stopCounter'}) }
-                                                                                                onTouchEnd={ () => checkCounter({action: 'stopCounter'}) }
-                                                                                                onMouseLeave={ () => checkCounter({action: 'stopCounter'}) }
-                                    >
-                                        <i className="fa-solid fa-angle-up"></i>
-                                    </button>
+                                        <option value='' disabled >Seleccione variante</option>
+                                        { variants.map( (v, i) => (
+                                            <option value={i} key={i} >{v}</option>
+                                        ) ) }
+                                    </select>
                                 </div>
                             </div>
-                        </div>
-                        <div className="w3-col s4">
-                            <div className="w3-row">
-                                <div className="w3-col s10 w3-right">
-                                    {/* Add Item */}
-                                    <button type="submit" className='w3-button w3-border w3-teal w3-text-white w-100' onClick={ validateComanda } >
-                                        <i className="fa-solid fa-plus"></i>
-                                    </button>
+                        ) }
+                        <div className='w3-row py-2'>
+                            <div className="w3-col s8">
+                                <div className="w3-row">
+                                    <div className="w3-col s3">
+                                        {/* Cantidad Menos */}
+                                        <button className='w3-button w3-border w3-border-teal w3-text-teal w-100' onMouseDown={ () => comanda.quantity > 1 && checkCounter({action: 'minusCounter'}) }
+                                                                                                    onTouchStart={ () => comanda.quantity > 1 && checkCounter({action: 'minusCounter'}) }
+                                                                                                    onMouseUp={ () => checkCounter({action: 'stopCounter'}) }
+                                                                                                    onTouchEnd={ () => checkCounter({action: 'stopCounter'}) }
+                                                                                                    onMouseLeave={ () => checkCounter({action: 'stopCounter'})}
+                                        >
+                                            <i className="fa-solid fa-angle-down"></i>
+                                        </button>
+                                    </div>
+                                    <div className="w3-col s6 w3-padding w3-border w3-center">
+                                        <span>{comanda.quantity}</span>
+                                    </div>
+                                    <div className="w3-col s3">
+                                        {/* Cantidad mas */}
+                                        <button className='w3-button w3-border w3-border-teal w3-text-teal w-100' onMouseDown={ () => comanda.quantity < 50 && checkCounter({action: 'plusCounter'}) }
+                                                                                                    onTouchStart={ () => comanda.quantity < 50 && checkCounter({action: 'plusCounter'}) }
+                                                                                                    onMouseUp={ () => checkCounter({action: 'stopCounter'}) }
+                                                                                                    onTouchEnd={ () => checkCounter({action: 'stopCounter'}) }
+                                                                                                    onMouseLeave={ () => checkCounter({action: 'stopCounter'}) }
+                                        >
+                                            <i className="fa-solid fa-angle-up"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="w3-col s4">
+                                <div className="w3-row">
+                                    <div className="w3-col s10 w3-right">
+                                        {/* Add Item */}
+                                        <button type="submit" className='w3-button w3-border w3-teal w3-text-white w-100' onClick={ validateComanda } >
+                                            <i className="fa-solid fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </form>
+            :
+                <div className="w3-padding-64" style={ {display:'grid', placeItems: 'center', position: 'relative', overflow: 'hidden'}}>
+                    <div className="loader-creator"></div>
                 </div>
-            </form>
+            }
             {/* ELEMENTOS */}
             {comanda.elementsTooltip && (
                 <div className="tooltip">

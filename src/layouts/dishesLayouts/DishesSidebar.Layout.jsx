@@ -1,9 +1,9 @@
-import {DishesEditorList} from "../../components/dishesComponents/DishesEditor.List";
+import {DishesCreator} from "../../components/dishesComponents/Dishes.Creator";
 
 export function DishesSidebarLayout () {
     return (
         <>
-            <DishesEditorList />
+            <DishesCreator />
         </>
     )
 }

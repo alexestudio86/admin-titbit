@@ -7,7 +7,6 @@ export function OrdersListModal( {modal, setModal} ) {
     const {order, setOrder, getOrder} = useOrdersContext();
     useEffect( () => {
         getOrder(modal.userId);
-        console.log('getOrder')
     }, []);
 
     const dateConvertion = ( evt = 'default' ) => {
@@ -52,7 +51,7 @@ export function OrdersListModal( {modal, setModal} ) {
                         <div className="w3-light-gray w3-padding" >
                             <div className="w3-row w3-padding-small" >
                                 {
-                                    !order
+                                    !order.details
                                     ?
                                     <>
                                         <div className="w3-col s11">
@@ -67,14 +66,18 @@ export function OrdersListModal( {modal, setModal} ) {
                                     :
                                     order.details.map((detail, index) => (
                                         <Fragment key={index}>
-                                            <div className="w3-col s11">
-                                                <input value={order.details[index]} className="w3-white w3-input w3-border" type="text" onChange={ e => editItem(index, e.target.value) } />
-                                            </div>
-                                            <div className="w3-rest">
-                                                <button className="w3-button w3-text-red w-100" type="button" onClick={ () => console.log('clicked') }>
-                                                    <i className="fas fa-times fa-2x"></i>
-                                                </button>
-                                            </div>
+                                            {detail.variants.map( (variant, idx) => (
+                                                <Fragment key={idx}>
+                                                    <div className="w3-col s11">
+                                                        <input value={order.details[index].variants[idx].name} className="w3-white w3-input w3-border" type="text" onChange={ e => editItem(index, e.target.value) } />
+                                                    </div>
+                                                    <div className="w3-rest">
+                                                        <button className="w3-button w3-text-red w-100" type="button" onClick={ () => console.log('clicked') }>
+                                                            <i className="fas fa-times fa-2x"></i>
+                                                        </button>
+                                                    </div>
+                                                </Fragment>
+                                            ))}
                                         </Fragment>
                                     ))
                                 }
@@ -117,11 +120,14 @@ export function OrdersListModal( {modal, setModal} ) {
                 </form>
                 <footer className="w3-padding-16 w3-light-gray w3-center w3-row">
                     <div className="w3-col s6 w3-center">
-                        <button className={"w3-button w3-white w3-border w3-border-red"} data-ident='editModal' onClick={ () => {
-                                                                                                                                setOrder([]);
-                                                                                                                                setModal({userId: null, show:  false});
-                                                                                                                            }
-                        } >Cancelar</button>
+                        <button className={"w3-button w3-white w3-border w3-border-red"}
+                            data-ident='editModal'
+                            onClick={ () => {
+                                    setOrder([]);
+                                    setModal({userId: null, show:  false});
+                                }
+                            }
+                        >Cancelar</button>
                     </div>
                     <div className="w3-col s6 w3-center">
                         {/* Target send like $event only when more of 1 function is setted */}
