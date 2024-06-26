@@ -92,32 +92,33 @@ export const DishesProvider = ( {children} ) => {
 
         }
     };
-
-    const [dish, setDish] = useState({});
-    const [dishLoader, setDishLoader] = useState(false);
+    //Initialize dish for get a dish in edit modal
+    const [dish, setDish] = useState({
+        tooltip:    false,
+        loading:    true
+    });
     const getDish = async( itemID ) => {
-        setDishLoader(true);
         try {
             const getItem = await getDoc(doc(db, "dishes", itemID));
-            setDish({id: getItem.id, ...getItem.data()});
-            setDishLoader(false);
+            setDish({...dish, loading:false, id:getItem.id, ...getItem.data()});
         } catch (error) {
             return error
         }
     };
-    const addDish = async() => {
+    const addDish = async( item ) => {
         try {
-            const docRef = await addDoc(collection(db, "dishes"), dish);
-            await updateDoc( doc(db, "dishes", docRef.id), {id: docRef.id} );
+            const docRef = await addDoc(collection(db, "dishes"), item);
+            //The follow instruction add an ID
+            //await updateDoc( doc(db, "dishes", docRef.id), {id: docRef.id} );
             //For make a reference
             //await addDoc(collection(db, "dishes"), {...dish, variants:[], basePrice:0, id: doc(await collection(db, "dishes"))});
         } catch (error) {
             return error
         }
     };
-    const updateDish = async() => {
+    const updateDish = async( item ) => {
         try{
-            await updateDoc(doc(db, "dishes", dish.id), dish);
+            await updateDoc(doc(db, "dishes", item.id), item);
         }catch(error){
             return error;
         }
@@ -128,7 +129,7 @@ export const DishesProvider = ( {children} ) => {
     },[])
 
     return (
-        <dishesContext.Provider value={{dishes, dishesLoader, getDish, dish, setDish, dishLoader, setDishLoader, addDish, updateDish}}>
+        <dishesContext.Provider value={{dishes, dishesLoader, dish, setDish, getDish, addDish, updateDish}}>
             {children}
         </dishesContext.Provider>
     )

@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { useDishesContext } from "../../context/DataProvider";
 
 
@@ -15,12 +16,22 @@ export const DishesListEditor = ({setModal}) => {
         {dishes.map((dish, index) => (
           <article key={index} className="w3-row w3-white mb-3 px-3 py-1">
             <div className="w3-col m10">
-              {/* Field and leyend */}
-              <div className="fieldset" key={index}>
-                <h1 className="legend w3-large">
-                  <span>{dish.productName}</span>
-                </h1>
-              </div>
+              {/* Summary */}
+              <details>
+                <summary className="w3-medium text-uppercase">{dish.productName} {dish.variants && `[${dish.variants.length}]`}</summary>
+                {dish.variants.length > 0
+                &&
+                <div className="w3-light-gray w3-padding-small">
+                  {
+                  dish.variants.map((d, i) => (
+                    <Fragment key={i}>
+                      <p >{d.name}</p>
+                    </Fragment>
+                  ))
+                  }
+                </div>
+                }
+              </details>
             </div>
             <div className="w3-rest">
               <div className="w3-right-align">
@@ -43,13 +54,6 @@ export const DishesListEditor = ({setModal}) => {
                   <i className="fas fa-edit text-primary w3-large"></i>
                 </button>
               </div>
-            </div>
-            <div className="w3-col s12">
-              {dish.variants.map((d, i) => (
-                <div key={i}>
-                  <span>{d.name}</span>
-                </div>
-              ))}
             </div>
           </article>
         ))}
