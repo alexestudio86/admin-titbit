@@ -12,14 +12,13 @@ export const OrdersProvider = ( {children} ) => {
 
     const [orders, setOrders] = useState([]);
     const [ordersLoader, setOrdersLoader] = useState(false);
-
     const getOrders = async() => {
         const dayFiltered = new Date();
         dayFiltered.setHours(0,0,0,0);
         setOrdersLoader(true);
         try {
             //For make a request inside object, you need create index (this can be created pushing in link console), is not necesary short by, 
-            const queryOrders   =   await query(collection(db, 'orders'), where('timestamp.created', '>=', dayFiltered));
+            const queryOrders   =   await query(collection(db, "orders"), where("timestamp.created", '>=', dayFiltered));
             //const queryOrders   =   await query(collection(db, 'orders'), where('created', '>=', dayFiltered), orderBy('created', 'desc'));
             onSnapshot(queryOrders, (querySnapshot) => {
                 setOrders(
@@ -33,7 +32,6 @@ export const OrdersProvider = ( {children} ) => {
             return error
         }
     }
-
     //Para evitar un error de undefined, es necesario declarar un objeto
     const [order, setOrder] = useState({});
     const addOrder = async( item ) => {
@@ -52,11 +50,9 @@ export const OrdersProvider = ( {children} ) => {
             return error
         }
     }
-
     useEffect( () => {
         getOrders();
     }, []);
-
 
     return (
         <ordersContext.Provider value={ {orders, ordersLoader, order, setOrder, addOrder, getOrder} }>
@@ -78,7 +74,7 @@ export const DishesProvider = ( {children} ) => {
             const dayFiltered = new Date();
             dayFiltered.setHours(0,0,0,0);
             setDishesLoader(true);
-            const queryDishes = await query(collection(db, 'dishes'), orderBy('productName'));
+            const queryDishes = await query(collection(db, "dishes"), orderBy("productName"));
             onSnapshot( queryDishes, (querySnapshot) => {
                 setDishes(
                     querySnapshot.docs.map( doc => (
@@ -95,9 +91,10 @@ export const DishesProvider = ( {children} ) => {
     //Initialize dish for get a dish in edit modal
     const [dish, setDish] = useState({
         tooltip:    false,
-        loading:    true
+        loading:    false
     });
     const getDish = async( itemID ) => {
+        setDish({...dish, loading: true});
         try {
             const getItem = await getDoc(doc(db, "dishes", itemID));
             setDish({...dish, loading:false, id:getItem.id, ...getItem.data()});

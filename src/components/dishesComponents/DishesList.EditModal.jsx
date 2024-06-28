@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 export const DishesListEditModal = ( {modal, setModal} ) => {
 
-    const {dish, setDish, getDish, updateDish, setDishLoader} = useDishesContext();
+    const {dish, setDish, getDish, updateDish} = useDishesContext();
 
     const editItem = ( event, index ) => {
         setDish({...dish, variants: dish.variants.map( (variant, idx) => (
@@ -12,15 +12,12 @@ export const DishesListEditModal = ( {modal, setModal} ) => {
         ))});
     };
 
-    const addItem = () => {
-        const searchDish = dish.variants.indexOf( dish.variants.find( d => d.name === '' ) );
-        //Element fake found
-        if ( searchDish >= 0 ) {
-            setDish({...dish, variants: [...dish.variants.filter( (v) => v.name !== '' ), {name:'', price:0}] });
-        //Element not found
-        }else{
-            setDish({...dish, variants: [...dish.variants, {name:'', price:0}]});
-        };
+    const removeVariant = ( idx ) => {
+        setDish({...dish, variants: dish.variants.filter( (v, i) => i !== idx )});
+    };
+
+    const addVariant = () => {
+        setDish({...dish, variants: [...dish.variants, {name:'', price:0}]});
     };
 
     const saveChanges = () => {
@@ -28,38 +25,30 @@ export const DishesListEditModal = ( {modal, setModal} ) => {
         if (dish.productName.length <= 3) {
             setDish({...dish, tooltip:true});
         }else{
-            if (dish.variants) {  
-                const searchDish = dish.variants.indexOf( dish.variants.find( d => d.name === '' ) );
-                //Element fake found
-                if ( searchDish >= 0 ) {
-                    setDish({...dish, loading:true, variants: [...dish.variants.filter( (v) => v.name !== '' )] });
-                //Element not found
-                };
-            };
-            const excluded = ['tooltip', 'loading'];
-            const filtered = Object.keys(dish)
-                .filter(key => !excluded.includes(key))
-                .reduce((obj, key) => {
+            const cleanDish = {...dish, variants: [...dish.variants.filter( v => v.name !== '' )] };
+            const excluded  = ['tooltip', 'loading'];
+            const filtered  = Object.keys(cleanDish).filter(key => !excluded.includes(key));
+            const reduced   = filtered.reduce((obj, key) => {
                 return {
                     ...obj,
-                    [key]: dish[key]
+                    [key]: cleanDish[key]
                 };
                 }, {});
-                updateDish(filtered);
-                setTimeout( () => {
-                    setDish({
-                        basePrice:    0,
-                        productName:  '',
-                        variants:     [],
-                        tooltip:      false,
-                        loading:      false,
-                        id:             ''
-                    });
-                    setModal({
-                        dishId:   null,
-                        type:     null,
-                    });
-                }, 500);
+            updateDish(reduced);
+            setTimeout( () => {
+                setDish({
+                    basePrice:    0,
+                    productName:  '',
+                    variants:     [],
+                    tooltip:      false,
+                    loading:      false,
+                    id:             ''
+                });
+                setModal({
+                    dishId:   null,
+                    type:     null,
+                });
+            }, 500);
         }
     };
 
@@ -76,7 +65,7 @@ export const DishesListEditModal = ( {modal, setModal} ) => {
                 <div className="loader"></div>
             </div>
             :
-            <>
+            <form onSubmit={ e => e.preventDefault() } >
                 <header className="w3-container w3-light-gray w3-row py-3">
                     <div className="w3-col m12">
                         {
@@ -97,69 +86,86 @@ export const DishesListEditModal = ( {modal, setModal} ) => {
                         />
                     </div>
                 </header>
-                <form className="w3-container w3-padding-32 w3-row">
+                <div className="w3-container w3-padding-32 w3-row" >
                     <div className="w3-col s12 w3-padding-small">
                     <span>Detalles</span>
                     <div className="w3-light-gray w3-padding">
                         <div className="w3-row w3-padding-small">
-                        {dish.variants &&
-                            dish.variants.map((variant, index) => (
-                            <div key={index} className="my-1">
-                                <input
-                                className="w3-input w3-border"
-                                type="text"
-                                placeholder="ej. Pollo"
-                                value={variant.name}
-                                onChange={(event) =>
-                                    editItem(event.target.value, index)
-                                }
-                                />
-                            </div>
+                            {dish.variants &&
+                                dish.variants.map((variant, index) => (
+                                <div key={index} className="w3-row my-1">
+                                    {/* Edit Variant */}
+                                    <div className="w3-col s11">
+                                        <input
+                                            className="w3-input w3-border"
+                                            type="text"
+                                            placeholder="ej. Pollo"
+                                            value={variant.name}
+                                            onChange={(event) =>
+                                            editItem(event.target.value, index)
+                                            }
+                                        />
+                                    </div>
+                                    {/* Remove Variant */}
+                                    <div className="w3-rest">
+                                        <button
+                                            className="w3-button w3-block"
+                                            style={{padding: '2px 0'}}
+                                            type="button"
+                                            onClick={ e => removeVariant(index) }
+                                        >
+                                            <i className="far fa-times-circle w3-xxlarge w3-text-red"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             ))}
-                        <button
-                            className={"w3-button w3-white w3-padding w3-center"}
-                            type="button"
-                            style={{
-                            border: "1 solid",
-                            borderColor: "#9e9e9e",
-                            borderStyle: "dashed",
-                            width: "100%",
-                            }}
-                            onClick={addItem}
-                        >
-                            <i className="fas fa-plus-circle fa-2x"></i>
-                        </button>
+                            {/* Add Variant */}
+                            <button
+                                className={"w3-button w3-white w3-padding w3-center"}
+                                type="button"
+                                style={{
+                                border: "1 solid",
+                                borderColor: "#9e9e9e",
+                                borderStyle: "dashed",
+                                width: "100%",
+                                }}
+                                onClick={ addVariant}
+                            >
+                                <i className="fas fa-plus-circle fa-2x"></i>
+                            </button>
                         </div>
                     </div>
                     </div>
-                </form>
+                </div>
                 <footer className="w3-padding-16 w3-light-gray w3-center w3-row">
                     <div className="w3-col s6 w3-center">
-                    <button
-                        className={"w3-button w3-white w3-border w3-border-red"}
-                        data-ident="editModal"
-                        onClick={() => {
-                        setDish({});
-                        setModal({
-                            dishId: null,
-                            type: null,
-                        });
-                        }}
-                    >
-                        Cancelar
-                    </button>
+                        {/* Cancel */}
+                        <button
+                            className={"w3-button w3-white w3-border w3-border-red"}
+                            data-ident="editModal"
+                            onClick={() => {
+                            setDish({});
+                            setModal({
+                                dishId: null,
+                                type: null,
+                            });
+                            }}
+                        >
+                            Cancelar
+                        </button>
                     </div>
                     <div className="w3-col s6 w3-center">
-                    {/* Target send like $event only when more of 1 function is setted */}
-                    <button
-                        className={"w3-button w3-white w3-border w3-border-green"}
-                        onClick={saveChanges}
-                    >
-                        Guardar
-                    </button>
+                        {/* Save - Target send like $event only when more of 1 function is setted */}
+                        <button
+                            type="submit"
+                            className={"w3-button w3-white w3-border w3-border-green"}
+                            onClick={saveChanges}
+                        >
+                            Guardar
+                        </button>
                     </div>
                 </footer>
-            </>
+            </form>
             }
         </div>
       </div>

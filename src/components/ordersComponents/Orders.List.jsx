@@ -5,7 +5,7 @@ import { OrdersListModal } from "./OrdersList.Modal";
 
 export function OrdersList ( ) {
 
-    const {orders, getOrder} = useOrdersContext();
+    const {orders} = useOrdersContext();
 
     const [modal, setModal] = useState({
         userId: null,
@@ -14,11 +14,11 @@ export function OrdersList ( ) {
 
     const dateConvertion = ( ) => {
         return new Date().toDateString();
-    }
+    };
 
     const timeConvertion = ( evt ) => {
         return evt.toDate().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    }
+    };
 
     const statusTranslate = ( evt ) => {
         switch (evt) {
@@ -35,7 +35,7 @@ export function OrdersList ( ) {
                 return 'S/S'
                 break;
         }
-    }
+    };
 
     return (
         <>

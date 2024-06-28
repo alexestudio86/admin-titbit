@@ -18,17 +18,19 @@ export const DishesListEditor = ({setModal}) => {
             <div className="w3-col m10">
               {/* Summary */}
               <details>
-                <summary className="w3-medium text-uppercase">{dish.productName} {dish.variants && `[${dish.variants.length}]`}</summary>
+                <summary className="w3-button w3-block w3-small w3-light-gray w3-left-align text-uppercase">{dish.productName} {dish.variants.length > 0 && `[${dish.variants.length}]`}</summary>
                 {dish.variants.length > 0
                 &&
-                <div className="w3-light-gray w3-padding-small">
-                  {
-                  dish.variants.map((d, i) => (
-                    <Fragment key={i}>
-                      <p >{d.name}</p>
-                    </Fragment>
-                  ))
-                  }
+                <div className="py-2">
+                  <div className="w3-light-gray w3-padding w3-small">
+                    {
+                    dish.variants.map((d, i) => (
+                      <Fragment key={i}>
+                        <p >{d.name}</p>
+                      </Fragment>
+                    ))
+                    }
+                  </div>
                 </div>
                 }
               </details>
@@ -36,12 +38,14 @@ export const DishesListEditor = ({setModal}) => {
             <div className="w3-rest">
               <div className="w3-right-align">
                 <button
+                  type="button"
                   className="w3-button w3-white w3-text-red mx-1 w3-padding-small"
                   data-ident="deleteModal"
                 >
                   <i className="fas fa-trash text-danger w3-large"></i>
                 </button>
                 <button
+                  type="button"
                   className="w3-button w3-white w3-text-blue mx-1 w3-padding-small"
                   data-ident="editModal"
                   onClick={() => {
